@@ -1,10 +1,12 @@
+// src/lib/api.js
 import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
-  withCredentials: true, 
+  withCredentials: true, // Cookie taşıma için
 });
 
+// Tokenları localStorage'dan al
 let accessToken = localStorage.getItem("token") || null;
 let refreshToken = localStorage.getItem("rt") || null;
 
@@ -28,7 +30,9 @@ export const clearTokens = () => {
   localStorage.removeItem("rt");
 };
 
+// Request Interceptor: Her isteğe token ekle
 api.interceptors.request.use((config) => {
+  // Bellektekini veya localStorage'dakini kullan
   const token = accessToken || localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -53,16 +57,19 @@ api.interceptors.response.use(
     const status = error?.response?.status;
     const url = (original?.url || "").toString();
 
+    // 401 hatası alındıysa ve daha önce denenmediyse
     if (status === 401 && !original?._retry && !NO_REFRESH_PATHS.some((p) => url.includes(p))) {
       original._retry = true;
 
       if (!isRefreshing) {
         isRefreshing = true;
         try {
+          // Refresh Token'ı localStorage'dan al (Cookie çalışmazsa kurtarıcı)
           const currentRefreshToken = localStorage.getItem("rt");
           
           if (!currentRefreshToken) throw new Error("No refresh token");
 
+          // Refresh isteği yaparken body içinde rt gönderiyoruz
           const { data } = await axios.post(
             `${import.meta.env.VITE_API_BASE}/api/auth/refresh`,
             { rt: currentRefreshToken }, 
@@ -77,6 +84,8 @@ api.interceptors.response.use(
           wakeAll(data.accessToken);
         } catch (e) {
           clearTokens();
+          // Kullanıcıyı login sayfasına at (isteğe bağlı ama önerilir)
+          window.location.href = "/giris-yap"; 
           wakeAll(null);
           return Promise.reject(e);
         } finally {
