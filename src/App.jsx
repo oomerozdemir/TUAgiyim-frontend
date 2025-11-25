@@ -10,7 +10,7 @@ import HomeProducts from "./components/HomeProducts";
 import CategoriesShowcase from "./components/CategoriesShowcase";
 import AboutBlock from "./components/AboutBlock";
 import InfoHighlights from "./components/InfoHighlights";
-import FAQSection from "./components/faqSection";
+// import FAQSection from "./components/faqSection";
 import NewsletterCTA from "./components/NewsLetterCta";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
@@ -74,7 +74,6 @@ export default function App() {
                     <LastViewedProducts />
                     <AboutBlock />
                     <InfoHighlights />
-                    <FAQSection />
                     <NewsletterCTA />
                     <Footer />
                   </>
