@@ -10,10 +10,11 @@ import HomeProducts from "./components/HomeProducts";
 import CategoriesShowcase from "./components/CategoriesShowcase";
 import AboutBlock from "./components/AboutBlock";
 import InfoHighlights from "./components/InfoHighlights";
-import FaqSection from "./components/FaqSection.jsx";
+import FAQSection from "./components/faqSection";
 import NewsletterCTA from "./components/NewsLetterCta";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
+
 import AboutPage from "./pages/AboutPage";
 import FaqPage from "./pages/FaqPage";
 import ContactPage from "./pages/ContactPage";
@@ -73,7 +74,7 @@ export default function App() {
                     <LastViewedProducts />
                     <AboutBlock />
                     <InfoHighlights />
-                    <FaqSection />
+                    <FAQSection />
                     <NewsletterCTA />
                     <Footer />
                   </>
