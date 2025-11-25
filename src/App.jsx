@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import RootLayout from "./layout/RootLayout";               // Navbar + GlobalBreadcrumbBar + Outlet
@@ -10,7 +9,7 @@ import HomeProducts from "./components/HomeProducts";
 import CategoriesShowcase from "./components/CategoriesShowcase";
 import AboutBlock from "./components/AboutBlock";
 import InfoHighlights from "./components/InfoHighlights";
-// import FAQSection from "./components/faqSection";
+import FAQSection from "./components/FAQSection"; // ✅ DÜZELTİLDİ (Eski: ./components/FaqSection)
 import NewsletterCTA from "./components/NewsLetterCta";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
@@ -74,6 +73,7 @@ export default function App() {
                     <LastViewedProducts />
                     <AboutBlock />
                     <InfoHighlights />
+                    <FAQSection />
                     <NewsletterCTA />
                     <Footer />
                   </>
@@ -148,9 +148,6 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-
-
 /* 
 tasarım kısımını hallet
 
