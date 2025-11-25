@@ -1,5 +1,5 @@
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
-import Breadcrumbs from "./Breadcrumbs";
+import Breadcrumbs from "./BreadCrumbs";
 
 export default function GlobalBreadcrumbBar() {
   const { items } = useBreadcrumbs();
