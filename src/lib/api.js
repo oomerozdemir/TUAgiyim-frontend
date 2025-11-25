@@ -1,13 +1,13 @@
-// src/lib/api.js
 import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
-  withCredentials: true, // Cookie taşıma için
+  withCredentials: true, // Cookie taşıma için kritik
 });
 
 // Tokenları localStorage'dan al
 let accessToken = localStorage.getItem("token") || null;
+// Refresh token'ı da localStorage'da tutuyoruz (cookie yedeği olarak)
 let refreshToken = localStorage.getItem("rt") || null;
 
 export const setTokens = (at, rt) => {
@@ -83,9 +83,10 @@ api.interceptors.response.use(
           }
           wakeAll(data.accessToken);
         } catch (e) {
+          console.error("Refresh failed:", e);
           clearTokens();
-          // Kullanıcıyı login sayfasına at (isteğe bağlı ama önerilir)
-          window.location.href = "/giris-yap"; 
+          // Kullanıcıyı login sayfasına yönlendir (isteğe bağlı ama önerilir)
+          // window.location.href = "/giris-yap"; 
           wakeAll(null);
           return Promise.reject(e);
         } finally {
