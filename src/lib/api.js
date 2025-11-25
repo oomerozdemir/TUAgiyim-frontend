@@ -2,10 +2,9 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
-  withCredentials: true, // cookie taşı
+  withCredentials: true, 
 });
 
-// access/refresh token’ları bellek + localStorage’da tut
 let accessToken = localStorage.getItem("token") || null;
 let refreshToken = localStorage.getItem("rt") || null;
 
@@ -24,20 +23,26 @@ export const setTokens = (at, rt) => {
 export const clearTokens = () => {
   accessToken = null;
   refreshToken = null;
- delete api.defaults.headers.common.Authorization;
+  delete api.defaults.headers.common.Authorization;
   localStorage.removeItem("token");
   localStorage.removeItem("rt");
-  // auth objesini tutuyorsan onu da silme işlemi context'te yapılacak
 };
 
 api.interceptors.request.use((config) => {
-  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  const token = accessToken || localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
 let isRefreshing = false;
 let waiters = [];
-const wakeAll = (t) => { waiters.forEach((cb) => cb(t)); waiters = []; };
+
+const wakeAll = (t) => { 
+  waiters.forEach((cb) => cb(t)); 
+  waiters = []; 
+};
 
 const NO_REFRESH_PATHS = ["/api/auth/login", "/api/auth/register", "/api/auth/refresh"];
 
@@ -54,28 +59,25 @@ api.interceptors.response.use(
       if (!isRefreshing) {
         isRefreshing = true;
         try {
-          // 1) Cookie ile dene + 2) Bearer rt fallback
+          const currentRefreshToken = localStorage.getItem("rt");
+          
+          if (!currentRefreshToken) throw new Error("No refresh token");
+
           const { data } = await axios.post(
             `${import.meta.env.VITE_API_BASE}/api/auth/refresh`,
-            refreshToken ? { rt: refreshToken } : {},
+            { rt: currentRefreshToken }, 
             {
               withCredentials: true,
-              headers: refreshToken ? { Authorization: `Bearer ${refreshToken}` } : undefined,
             }
           );
 
           if (data?.accessToken) {
-            setTokens(data.accessToken, data.refreshToken || refreshToken);
+            setTokens(data.accessToken, data.refreshToken || currentRefreshToken);
           }
-          wakeAll(accessToken);
+          wakeAll(data.accessToken);
         } catch (e) {
-          accessToken = null;
-          refreshToken = null;
-          localStorage.removeItem("token");
-          localStorage.removeItem("rt");
+          clearTokens();
           wakeAll(null);
-          // İsteğe bağlı:
-          // window.location.href = "/giris-yap";
           return Promise.reject(e);
         } finally {
           isRefreshing = false;
@@ -84,7 +86,7 @@ api.interceptors.response.use(
 
       return new Promise((resolve, reject) => {
         waiters.push((t) => {
-          if (!t) return reject(error);
+          if (!t) return reject(error); // Token yenilenemedi
           original.headers = original.headers || {};
           original.headers.Authorization = `Bearer ${t}`;
           resolve(api(original));
