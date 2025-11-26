@@ -14,10 +14,7 @@ export default function ProductCard({
   const { addItem, openCart } = useCart();
 
   // --- STATE'LER ---
-  // Renk seçimi zaten vardı
   const [selectedColorKey, setSelectedColorKey] = useState(null);
-  
-  // YENİ: Beden seçimi ve Hata kontrolü
   const [selectedSizeId, setSelectedSizeId] = useState(null);
   const [showError, setShowError] = useState(false);
 
@@ -42,7 +39,6 @@ export default function ProductCard({
 
   // --- RENK MANTIĞI ---
   useEffect(() => {
-    // Component yüklendiğinde varsayılan rengi ayarla
     if (hasColors && !selectedColorKey) {
         const defaultKey = colors[0].id ?? colors[0].label;
         setSelectedColorKey(defaultKey);
@@ -60,7 +56,6 @@ export default function ProductCard({
   // --- GÖRSEL SEÇİMİ ---
   const imageList = Array.isArray(images) ? images : [];
   
-  // Seçili renge göre görsel bulma
   const colorImages =
     currentColor && currentColor.id
       ? imageList.filter((im) => im.colorId === currentColor.id)
@@ -82,25 +77,18 @@ export default function ProductCard({
   const priceLabel = tl ? tl(price) : `${price ?? ""} ₺`;
 
   // --- İŞLEVLER ---
-
-  // Beden Seçimi
   const handleSizeSelect = (sId) => {
     setSelectedSizeId(sId);
-    setShowError(false); // Seçim yapılınca hatayı kaldır
+    setShowError(false);
   };
 
-  // Sepete Ekleme (Validasyonlu)
   const handleAddToCart = () => {
-    // 1. Validasyon: Eğer ürünün bedenleri var ama seçili beden yoksa
     if (hasSizes && !selectedSizeId) {
       setShowError(true);
-      // 3 saniye sonra hatayı otomatik kaldır (kullanıcıyı çok sıkmamak için)
       setTimeout(() => setShowError(false), 3000);
       return; 
     }
 
-    // 2. Payload Hazırlama
-    // Seçilen bedeni bul
     const selectedSizeObj = hasSizes ? sizes.find(s => s.id === selectedSizeId) : null;
 
     const payload = {
@@ -109,25 +97,38 @@ export default function ProductCard({
       price: Number(price),
       image: imageUrl,
       quantity: 1,
-      // Renk bilgisi
       colorId: currentColor?.id || null,
       colorLabel: currentColor?.label || null,
-      // Beden bilgisi (Artık dolu gidiyor)
       sizeId: selectedSizeObj?.id || null,
       sizeLabel: selectedSizeObj?.label || null, 
     };
 
     addItem(payload);
     openCart();
-    
-    // İsteğe bağlı: Ekleme sonrası bedeni sıfırlama
-    // setSelectedSizeId(null); 
   };
 
   const hasRating =
     typeof ratingCount === "number" &&
     ratingCount > 0 &&
     typeof averageRating === "number";
+
+  // Renk Kodu Çevirici
+  const getColorHex = (label) => {
+    const lower = (label || "").toLocaleLowerCase("tr");
+    if (lower.includes("siyah") || lower.includes("black")) return "#000000";
+    if (lower.includes("beyaz") || lower.includes("white")) return "#ffffff";
+    if (lower.includes("kırmızı") || lower.includes("kirmizi") || lower.includes("red") || lower.includes("bordo")) return "#d32f2f";
+    if (lower.includes("mavi") || lower.includes("blue") || lower.includes("lacivert")) return "#1976d2";
+    if (lower.includes("yeşil") || lower.includes("yesil") || lower.includes("green") || lower.includes("haki")) return "#388e3c";
+    if (lower.includes("sarı") || lower.includes("sari") || lower.includes("yellow")) return "#fbc02d";
+    if (lower.includes("turuncu") || lower.includes("orange") || lower.includes("kiremit")) return "#f57c00";
+    if (lower.includes("mor") || lower.includes("purple") || lower.includes("lila")) return "#7b1fa2";
+    if (lower.includes("pembe") || lower.includes("pink") || lower.includes("pudra")) return "#e91e63";
+    if (lower.includes("gri") || lower.includes("grey") || lower.includes("füme")) return "#757575";
+    if (lower.includes("bej") || lower.includes("beige") || lower.includes("krem") || lower.includes("ekru")) return "#f5f5dc";
+    if (lower.includes("kahve") || lower.includes("brown") || lower.includes("taba")) return "#795548";
+    return "#e5e5e5";
+  };
 
   return (
     <article
@@ -136,7 +137,6 @@ export default function ProductCard({
       {/* ÜRÜNE GİDEN LİNK */}
       <Link to={`/urun/${id}`} className="block mb-2">
         <div className="aspect-[3/4] w-full overflow-hidden rounded-sm relative">
-            {/* Stok Tükendi Etiketi */}
             {stock === 0 && (
                 <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center">
                     <span className="bg-black text-white text-xs px-2 py-1 font-bold">TÜKENDİ</span>
@@ -167,21 +167,56 @@ export default function ProductCard({
         </div>
       </Link>
 
-       {/* Favori Butonu */}
-          {showFavorite && (
+      {/* --- AKSİYON BUTONLARI (Favori + Sepet) --- */}
+      <div className="absolute right-6 bottom-10 flex items-center gap-2 z-20">
+        
+        {/* Favori Butonu */}
+        {showFavorite && (
           <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-          <FavoriteButton
-          productId={id}
-          initial={isFavorited}
-          className="bg-white hover:bg-gold hover:text-white border-gray-200 shadow-md w-11 h-11"
-          />
+             <FavoriteButton 
+                 productId={id} 
+                 initial={isFavorited} 
+                 className="bg-white hover:bg-gold hover:text-white border-gray-200 shadow-md w-11 h-11"
+             />
           </div>
-          )}
-      {/* --- BEDEN SEÇİMİ (GÜNCELLENDİ) --- */}
+        )}
+
+        {/* Sepet Butonu */}
+        {showCartButton && (
+          <button
+            type="button"
+            aria-label="Sepete ekle"
+            className={`grid place-items-center w-11 h-11 rounded-md text-white transition-all active:scale-90 shadow-lg
+              ${showError ? 'bg-red-600 hover:bg-red-700 animate-shake' : 'bg-gold/90 hover:bg-black/80'}
+            `}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleAddToCart();
+            }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-5 h-5"
+            >
+              <path d="M6 6h15l-1.5 9h-12z" />
+              <path d="M6 6l-2 0" />
+              <circle cx="9" cy="20" r="1.5" />
+              <circle cx="17" cy="20" r="1.5" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* --- BEDEN SEÇİMİ --- */}
       <div className="mt-auto mb-2">
         {hasSizes ? (
             <div className="flex flex-col gap-1">
-                {/* Hata Mesajı */}
                 {showError && (
                     <span className="text-[10px] text-red-600 font-bold animate-pulse">
                         * Lütfen beden seçiniz
@@ -241,22 +276,7 @@ export default function ProductCard({
                 ? currentColor.id === c.id
                 : currentColor.label === c.label);
 
-            const lower = (c.label || "").toLowerCase();
-            let bgColor = c.hex || c.code || c.color || "";
-            // Basit renk mapping
-            if (!bgColor) {
-              if (lower.includes("siyah")) bgColor = "#000000";
-              else if (lower.includes("beyaz")) bgColor = "#ffffff";
-              else if (lower.includes("kırmızı")) bgColor = "#d32f2f";
-              else if (lower.includes("yeşil")) bgColor = "#388e3c";
-              else if (lower.includes("mavi")) bgColor = "#1976d2";
-              else if (lower.includes("lacivert")) bgColor = "#000080";
-              else if (lower.includes("sarı")) bgColor = "#fbc02d";
-              else if (lower.includes("gri")) bgColor = "#9e9e9e";
-              else if (lower.includes("bej")) bgColor = "#f5f5dc";
-              else if (lower.includes("mor")) bgColor = "#7b1fa2";
-              else bgColor = "#e5e5e5";
-            }
+            const bgColor = getColorHex(c.label);
 
             return (
               <button
@@ -293,37 +313,6 @@ export default function ProductCard({
           </>
         ) : null}
       </div>
-
-      {/* SEPET İKONU */}
-      {showCartButton && (
-        <button
-          type="button"
-          aria-label="Sepete ekle"
-          className={`absolute right-6 bottom-10 grid place-items-center w-11 h-11 rounded-md text-white transition-all active:scale-90 shadow-lg
-            ${showError ? 'bg-red-600 hover:bg-red-700 animate-shake' : 'bg-gold/90 hover:bg-black/80'}
-          `}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleAddToCart();
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-5 h-5"
-          >
-            <path d="M6 6h15l-1.5 9h-12z" />
-            <path d="M6 6l-2 0" />
-            <circle cx="9" cy="20" r="1.5" />
-            <circle cx="17" cy="20" r="1.5" />
-          </svg>
-        </button>
-      )}
     </article>
   );
 }
