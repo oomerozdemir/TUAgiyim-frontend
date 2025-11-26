@@ -115,7 +115,7 @@ export default function PrivacyPage() {
             <div className="pl-16 text-black/70 font-light leading-relaxed space-y-3 text-sm md:text-base">
               <p>KVKK'nın 11. maddesi uyarınca, verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, işlenme amacını öğrenme, eksik veya yanlış işlenen verilerin düzeltilmesini isteme ve silinmesini talep etme haklarına sahipsiniz.</p>
               <p>
-                Taleplerinizi <a href="mailto:iletisim@tuagiyim.com" className="text-gold hover:underline font-medium">info@tuagiyim.com</a> adresine e-posta göndererek bize iletebilirsiniz.
+                Taleplerinizi <a href="mailto:iletisim@tuagiyim.com" className="text-gold hover:underline font-medium">iletisim@tuagiyim.com</a> adresine e-posta göndererek bize iletebilirsiniz.
               </p>
             </div>
           </section>

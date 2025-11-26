@@ -43,7 +43,7 @@ export default function AboutPage() {
                 TUA olarak, modanın sadece giyinmek değil, kendini ifade etmenin en zarif yolu olduğuna inanıyoruz. Yolculuğumuz, modern kadının gücünü ve zarafetini yansıtan, zamansız parçalar tasarlama tutkusuyla başladı.
               </p>
               <p>
-                "Products for the Soul" (Ruh için Ürünler) mottomuzla, sadece bedeninizi saran kumaşlar değil, ruhunuza iyi gelen, içinde kendinizi özel hissettiğiniz tasarımlar sunuyoruz. Her dikişte, her kumaş seçiminde kültürel mirasımızdan ilham alarak, geçmişin zanaatını bugünün estetiğiyle harmanlıyoruz.
+                "Her Bedende Işıltı" mottomuzla, sadece bedeninizi saran kumaşlar değil, ruhunuza iyi gelen, içinde kendinizi özel hissettiğiniz tasarımlar sunuyoruz. Her dikişte, her kumaş seçiminde kültürel mirasımızdan ilham alarak, geçmişin zanaatını bugünün estetiğiyle harmanlıyoruz.
               </p>
               <p>
                 TUA kadını; kendine güvenen, detaylardaki kaliteyi fark eden ve stilini ruhuyla bütünleştiren kadındır.
@@ -52,7 +52,7 @@ export default function AboutPage() {
             
             {/* İmza vb. eklenebilir */}
             <div className="pt-4">
-              <span className="font-handwriting text-3xl text-black/40">Tua Design Team</span>
+              <span className="font-handwriting text-3xl text-black/40">Tua Giyim</span>
             </div>
           </div>
 
@@ -60,7 +60,7 @@ export default function AboutPage() {
           <div className="order-1 md:order-2 relative">
             <div className="aspect-[3/4] overflow-hidden rounded-sm shadow-2xl border-[10px] border-white">
               <img 
-                src="https://images.unsplash.com/photo-1605763240004-7bf11195815d?q=80&w=1887&auto=format&fit=crop" 
+                src="images/yeniSezon.png" 
                 alt="TUA Tasarım Süreci" 
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-1000"
               />
@@ -128,8 +128,8 @@ export default function AboutPage() {
         <div className="relative z-10 max-w-4xl px-6 text-center">
           <Leaf className="mx-auto text-gold/60 mb-6 animate-bounce-slow" size={40} strokeWidth={1} />
           <h2 className="text-3xl md:text-5xl font-serif text-black leading-snug">
-            "Breathing new life into <br />
-            <span className="text-gold font-italic">cultural craft."</span>
+            "Kültürel zanaata <br />
+            <span className="text-gold font-italic">yeni bir soluk getiriyoruz."</span>
           </h2>
           <p className="mt-8 text-black/60 max-w-xl mx-auto font-light">
             Geçmişin zarafetini geleceğin modernliğiyle buluşturuyoruz. TUA, sizin hikayenizin en şık eşlikçisi olmak için burada.

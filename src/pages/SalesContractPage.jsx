@@ -36,14 +36,14 @@ export default function SalesContractPage() {
             <div className="pl-16 text-black/70 font-light leading-relaxed space-y-4 text-sm md:text-base">
               <div>
                 <strong className="text-black block mb-1">1.1. Satıcı Bilgileri:</strong>
-                <p>Ünvanı: TUA Design Tekstil San. ve Tic. A.Ş.</p>
-                <p>Adres: Nişantaşı Mahallesi, Abdi İpekçi Cd. No:1 Şişli / İstanbul</p>
-                <p>E-posta: info@tuadesign.com</p>
+                <p>Ünvanı: TUA Giyim </p>
+                <p>Adres: Şişli / İstanbul</p>
+                <p>E-posta: iletisim@tuagiyim.com</p>
               </div>
               <div>
                 <strong className="text-black block mb-1">1.2. Alıcı Bilgileri:</strong>
                 <p>
-                  www.tuadesign.com internet sitesine üye olan veya üye olmadan alışveriş yapan müşteri. Sözleşmede bundan böyle "ALICI" olarak anılacaktır. Alıcı'nın sipariş verirken beyan ettiği adres ve iletişim bilgileri esas alınır.
+                  www.tuagiyim.com internet sitesine üye olan veya üye olmadan alışveriş yapan müşteri. Sözleşmede bundan böyle "ALICI" olarak anılacaktır. Alıcı'nın sipariş verirken beyan ettiği adres ve iletişim bilgileri esas alınır.
                 </p>
               </div>
             </div>

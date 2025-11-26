@@ -115,15 +115,7 @@ export default function Footer() {
           >
             <Facebook size={20} strokeWidth={1.5} />
           </a>
-          <a 
-            href="https://twitter.com" 
-            target="_blank" 
-            rel="noreferrer"
-            aria-label="Twitter" 
-            className="text-black/60 hover:text-gold transition-all duration-300 hover:-translate-y-1"
-          >
-            <Twitter size={20} strokeWidth={1.5} />
-          </a>
+         
         </div>
       </div>
     </footer>

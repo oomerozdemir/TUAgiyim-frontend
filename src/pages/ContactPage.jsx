@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send, Instagram, Facebook, CheckCircle, AlertCircle } from "lucide-react";
-import api from "../lib/api"; // Axios instance'ınızın olduğu yer
+import api from "../lib/api"; 
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -10,7 +10,7 @@ export default function ContactPage() {
     message: ""
   });
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null); // 'success' | 'error' | null
+  const [status, setStatus] = useState(null); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +64,7 @@ export default function ContactPage() {
                 <div>
                   <h3 className="text-lg font-serif text-black mb-1">E-posta</h3>
                   <p className="text-sm text-black/60 font-light mb-1">Genel Sorularınız İçin:</p>
-                  <a href="mailto:info@tuadesign.com" className="text-black font-medium hover:text-gold transition-colors">info@tuadesign.com</a>
+                  <a href="mailto:iletisim@tuagiyim.com" className="text-black font-medium hover:text-gold transition-colors">iletisim@tuagiyim.com</a>
                 </div>
               </div>
 
@@ -75,22 +75,11 @@ export default function ContactPage() {
                 <div>
                   <h3 className="text-lg font-serif text-black mb-1">Telefon / WhatsApp</h3>
                   <p className="text-sm text-black/60 font-light mb-1">Hafta içi 09:00 - 18:00</p>
-                  <a href="tel:+905555555555" className="text-black font-medium hover:text-gold transition-colors">+90 (555) 555 55 55</a>
+                  <a href="tel:+905077877311" className="text-black font-medium hover:text-gold transition-colors">+90 (507) 787 73 11</a>
                 </div>
               </div>
 
-              <div className="flex items-start gap-5">
-                <div className="w-12 h-12 rounded-full bg-white border border-beige/50 flex items-center justify-center text-gold shadow-sm flex-shrink-0">
-                  <MapPin size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-serif text-black mb-1">Showroom</h3>
-                  <p className="text-sm text-black/60 font-light leading-relaxed">
-                    Nişantaşı Mahallesi, Abdi İpekçi Cd. No:1 <br />
-                    Şişli / İstanbul
-                  </p>
-                </div>
-              </div>
+              
             </div>
 
             {/* Sosyal Medya */}
