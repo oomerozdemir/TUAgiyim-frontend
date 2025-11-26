@@ -167,18 +167,16 @@ export default function ProductCard({
         </div>
       </Link>
 
-      {/* Favori butonu */}
-      {showFavorite && (
-        <div
-          className="absolute right-5 bottom-[130px] flex items-center gap-3 z-20"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <FavoriteButton productId={id} initial={isFavorited} />
-        </div>
-      )}
+       {/* Favori Butonu */}
+          {showFavorite && (
+             <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+               <FavoriteButton 
+                 productId={id} 
+                 initial={isFavorited} 
+                 className="bg-white hover:bg-gold hover:text-white border-gray-200 shadow-md w-11 h-11"
+               />
+             </div>
+          )}
 
       {/* --- BEDEN SEÇİMİ (GÜNCELLENDİ) --- */}
       <div className="mt-auto mb-2">
