@@ -169,15 +169,14 @@ export default function ProductCard({
 
        {/* Favori Butonu */}
           {showFavorite && (
-             <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-               <FavoriteButton 
-                 productId={id} 
-                 initial={isFavorited} 
-                 className="bg-white hover:bg-gold hover:text-white border-gray-200 shadow-md w-11 h-11"
-               />
-             </div>
+          <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+          <FavoriteButton
+          productId={id}
+          initial={isFavorited}
+          className="bg-white hover:bg-gold hover:text-white border-gray-200 shadow-md w-11 h-11"
+          />
+          </div>
           )}
-
       {/* --- BEDEN SEÇİMİ (GÜNCELLENDİ) --- */}
       <div className="mt-auto mb-2">
         {hasSizes ? (

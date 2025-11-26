@@ -150,7 +150,7 @@ export default function App() {
 }
 /* 
 tasarım kısımını hallet
-
+mobil responsiveligi kontrol et
 
 sepette ürün varken bildirim olarak gözüksün tıklama isteği uyandırması için
 
