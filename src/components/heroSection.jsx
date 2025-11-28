@@ -50,7 +50,8 @@ export default function EnhancedHeroSection() {
     <section 
       ref={sectionRef}
       // ARKA PLAN: Turuncumsu sarı yerine çok açık krem/taş rengi geçişler
-      className="relative w-full min-h-screen bg-gradient-to-br from-[#FAF9F6] via-[#F5F2EB] to-[#EBE5D9] overflow-hidden flex items-center"
+      // DÜZELTME: pt-28 ekleyerek mobilde navbar altında kalmasını engelliyoruz. lg:pt-0 ile desktopta ortalıyoruz.
+      className="relative w-full min-h-screen bg-gradient-to-br from-[#FAF9F6] via-[#F5F2EB] to-[#EBE5D9] overflow-hidden flex flex-col lg:flex-row items-center justify-center pt-28 pb-10 lg:py-0"
     >
       
       {/* ===== ANIMATED BACKGROUND ELEMENTS ===== */}
@@ -108,7 +109,7 @@ export default function EnhancedHeroSection() {
           
           {/* Rotating Feature Badge */}
           <div className="flex items-center justify-center lg:justify-start gap-3 group">
-            <span className="w-12 h-[1px] bg-[#A39075] transition-all duration-500"></span>
+            <span className="w-8 lg:w-12 h-[1px] bg-[#A39075] transition-all duration-500"></span>
             <div className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full border border-[#D6C4A8]/30">
               {features.map((feature, idx) => {
                 const Icon = feature.icon;
@@ -122,7 +123,7 @@ export default function EnhancedHeroSection() {
                     }`}
                   >
                     <Icon className={`w-4 h-4 text-[#A39075]`} />
-                    <span className="text-xs font-bold tracking-wider text-[#7D705A] uppercase">
+                    <span className="text-xs font-bold tracking-wider text-[#7D705A] uppercase whitespace-nowrap">
                       {feature.text}
                     </span>
                   </div>
@@ -132,7 +133,7 @@ export default function EnhancedHeroSection() {
           </div>
 
           {/* Main Heading */}
-          <h1 className="space-y-2">
+          <h1 className="space-y-1 md:space-y-2">
             {['Her', 'Bedende', 'IŞILTI.'].map((word, idx) => (
               <span
                 key={word}
@@ -140,13 +141,14 @@ export default function EnhancedHeroSection() {
                 style={{
                   transitionDelay: `${idx * 150}ms`,
                   ...(word === 'Her' && { 
-                    fontSize: 'clamp(3rem, 10vw, 5rem)',
+                    // DÜZELTME: Mobilde daha küçük ve güvenli font boyutu (2.5rem)
+                    fontSize: 'clamp(2.5rem, 9vw, 5rem)',
                     fontFamily: 'serif',
                     fontWeight: 300,
                     color: '#2D2D2D'
                   }),
                   ...(word === 'Bedende' && {
-                    fontSize: 'clamp(3rem, 10vw, 5rem)',
+                    fontSize: 'clamp(2.5rem, 9vw, 5rem)',
                     fontFamily: 'serif',
                     fontWeight: 300,
                     fontStyle: 'italic',
@@ -154,9 +156,9 @@ export default function EnhancedHeroSection() {
                     color: '#4A4A4A'
                   }),
                   ...(word === 'IŞILTI.' && {
-                    fontSize: 'clamp(3.5rem, 12vw, 6rem)',
+                    // DÜZELTME: Işıltı yazısının mobilde taşmasını önlemek için min boyutu 3rem yaptık
+                    fontSize: 'clamp(3rem, 11vw, 6rem)',
                     fontWeight: 800,
-                    // IŞILTI YAZISI: Artık mat altın/bej gradyanlı
                     background: 'linear-gradient(135deg, #A39075 0%, #D6C4A8 50%, #8C7B62 100%)',
                     backgroundSize: '200% 200%',
                     backgroundClip: 'text',
@@ -173,20 +175,19 @@ export default function EnhancedHeroSection() {
           </h1>
 
           {/* Description */}
-          <p className={`text-[#666] text-lg font-light max-w-md mx-auto lg:mx-0 leading-relaxed transition-all duration-1000 delay-500 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+          <p className={`text-[#666] text-base md:text-lg font-light max-w-md mx-auto lg:mx-0 leading-relaxed transition-all duration-1000 delay-500 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             TUA Design ile zarafeti keşfedin. Minimalist çizgilerin geleneksel dokunuşlarla buluştuğu eşsiz tasarımlar.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
             <button
-              className="group relative px-10 py-5 bg-[#1a1a1a] text-white rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#A39075]/20 hover:scale-105 active:scale-95"
+              className="group relative px-10 py-5 bg-[#1a1a1a] text-white rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#A39075]/20 hover:scale-105 active:scale-95 w-full sm:w-auto"
               onClick={() => navigate("/urunler")}
             >
-              {/* Buton Hover Efekti: Artık sarı değil, soft vizon/bej */}
               <div className="absolute inset-0 bg-gradient-to-r from-[#8C7B62] via-[#B8A488] to-[#8C7B62] opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%_100%] animate-shimmer" />
 
-              <span className="relative flex items-center gap-3 font-semibold tracking-wider text-sm">
+              <span className="relative flex items-center justify-center gap-3 font-semibold tracking-wider text-sm">
                 KOLEKSİYONU KEŞFET
                 <ArrowRight className="transition-transform group-hover:translate-x-2 duration-300" size={18} />
               </span>
@@ -220,15 +221,15 @@ export default function EnhancedHeroSection() {
         </div>
 
         {/* ===== RIGHT: IMAGE AREA ===== */}
-        <div className={`lg:col-span-7 relative h-[500px] md:h-[700px] flex items-center justify-center lg:justify-end transition-all duration-1000 delay-300 transform ${loaded ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}>
+        <div className={`lg:col-span-7 relative h-[400px] md:h-[700px] flex items-center justify-center lg:justify-end transition-all duration-1000 delay-300 transform ${loaded ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}>
           
           <div className="relative w-[85%] md:w-[75%] h-[95%] group">
             
-            {/* Decorative Frame - Soft Stone Rengi */}
-            <div className="absolute top-8 right-8 w-full h-full border border-[#D6C4A8] rounded-t-[12rem] rounded-b-3xl -z-10 transition-all duration-700 group-hover:top-6 group-hover:right-6 group-hover:border-[#C5B398]" />
+            {/* Decorative Frame */}
+            <div className="absolute top-8 right-8 w-full h-full border border-[#D6C4A8] rounded-t-[8rem] md:rounded-t-[12rem] rounded-b-3xl -z-10 transition-all duration-700 group-hover:top-6 group-hover:right-6 group-hover:border-[#C5B398]" />
             
             {/* Main Image Container */}
-            <div className="relative w-full h-full rounded-t-[12rem] rounded-b-3xl overflow-hidden shadow-2xl shadow-black/10 transition-all duration-700 group-hover:shadow-[#A39075]/20">
+            <div className="relative w-full h-full rounded-t-[8rem] md:rounded-t-[12rem] rounded-b-3xl overflow-hidden shadow-2xl shadow-black/10 transition-all duration-700 group-hover:shadow-[#A39075]/20">
               <img 
                 src="/images/yeniSezon.png"
                 alt="TUA Yeni Sezon" 
@@ -237,12 +238,12 @@ export default function EnhancedHeroSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#3d362b]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               {/* Floating Badge */}
-              <div className="absolute bottom-8 left-8 bg-white/90 backdrop-blur-md px-6 py-4 rounded-2xl shadow-lg border border-white/60 transition-all duration-500 group-hover:scale-105">
+              <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 bg-white/90 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl shadow-lg border border-white/60 transition-all duration-500 group-hover:scale-105">
                 <div className="flex items-center gap-2 text-[#8C7B62] mb-1">
                   <Sparkles className="animate-pulse" size={16} />
-                  <span className="text-xs font-bold tracking-widest uppercase">Best Seller</span>
+                  <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase">Best Seller</span>
                 </div>
-                <p className="text-[#2D2D2D] font-serif text-lg">TUA İmza Serisi</p>
+                <p className="text-[#2D2D2D] font-serif text-sm md:text-lg">TUA İmza Serisi</p>
                 <div className="flex gap-1 mt-2">
                   {[1,2,3,4,5].map(i => (
                     <Star key={i} className="w-3 h-3 fill-[#D6C4A8] stroke-[#D6C4A8]" />
@@ -252,7 +253,7 @@ export default function EnhancedHeroSection() {
             </div>
 
             {/* Floating Tag - Siyah/Vizon karışımı */}
-            <div className="absolute -bottom-8 -left-8 bg-[#1a1a1a] text-[#EBE5D9] text-xs font-bold py-4 px-8 rounded-full rotate-[-5deg] shadow-xl z-20 transition-all duration-500 hover:rotate-0 hover:scale-110 cursor-pointer border border-[#ffffff]/10">
+            <div className="hidden md:flex absolute -bottom-8 -left-8 bg-[#1a1a1a] text-[#EBE5D9] text-xs font-bold py-4 px-8 rounded-full rotate-[-5deg] shadow-xl z-20 transition-all duration-500 hover:rotate-0 hover:scale-110 cursor-pointer border border-[#ffffff]/10">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-[#D6C4A8] rounded-full animate-pulse" />
                 %100 EL İŞÇİLİĞİ
@@ -271,7 +272,7 @@ export default function EnhancedHeroSection() {
 
       {/* Scroll Indicator */}
       <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#999] animate-bounce cursor-pointer group"
+        className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-[#999] animate-bounce cursor-pointer group"
         onClick={handleScrollDown}
       >
         <span className="text-xs font-medium tracking-wider uppercase group-hover:text-[#8C7B62] transition-colors">

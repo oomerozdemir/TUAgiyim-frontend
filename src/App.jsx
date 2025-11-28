@@ -160,7 +160,8 @@ takım olarak eklenen ürünleri ayrı ayrı eklendiğinde resimdeki eteği de e
 yani tek bir ürün olan bluzun altınaki etek içinde ek olarak isteme eylemini gösterelim kullanıcıya.
 ya da bir ürün içine 2 fiyat eklemesi yapabilelim hem takım olarak hem üst ürün hem alt ürün olarak ayrı bir fiyatlandırma yapalım kullanıcı kendi seçeneği ile ilerlesin
 
-admın panelınde kargolandı dediğimizde kargolandı maili gitsin kullanıcıya o siparişe özel 
 
 seo çalışması
+
+favicon duzenlemesi
 */

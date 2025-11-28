@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useSearchParams, Link } from "react-router-dom"; // Link eklendi
-import { Package, Truck, CheckCircle, AlertCircle, Clock, MapPin, ChevronRight } from "lucide-react"; // İkonlar eklendi
+import { Package, Truck, CheckCircle, AlertCircle, Clock, MapPin, ChevronRight, Box } from "lucide-react"; // İkonlar eklendi
 
 const TabButton = ({ id, active, onClick, children }) => (
   <button
