@@ -14,36 +14,37 @@ const tabs = [
 export default function AdminLayout() {
   return (
     <>
-    <Navbar />
-    <div className="max-w-7xl mx-auto pt-28 px-4">
-      <h1 className="text-2xl font-semibold mb-4">Admin Paneli</h1>
+      <Navbar />
+      <div className="max-w-7xl mx-auto pt-28 px-4">
+        <h1 className="text-2xl font-semibold mb-4">Admin Paneli</h1>
 
-      {/* Sekmeler */}
-      <div className="border-b border-beige/60 mb-6">
-        <nav className="-mb-px flex gap-4">
-          {tabs.map((t) => (
-            <NavLink
-              key={t.to}
-              to={t.to}
-              end={t.end}
-              className={({ isActive }) =>
-                `px-3 py-2 border-b-2 ${
-                  isActive ? "border-gold text-black" : "border-transparent text-black/70 hover:text-black"
-                }`
-              }
-            >
-              {t.label}
-            </NavLink>
-          ))}
-        </nav>
-      </div>
+        {/* Sekmeler */}
+        <div className="border-b border-beige/60 mb-6 overflow-x-auto no-scrollbar">
+          <nav className="-mb-px flex gap-4 min-w-max pb-1">
+            {tabs.map((t) => (
+              <NavLink
+                key={t.to}
+                to={t.to}
+                end={t.end}
+                className={({ isActive }) =>
+                  `px-3 py-2 border-b-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                    isActive
+                      ? "border-gold text-black"
+                      : "border-transparent text-black/60 hover:text-black hover:border-black/20"
+                  }`
+                }
+              >
+                {t.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
-      {/* İçerik */}
-      <div className="pb-16">
-        <Outlet />
+        {/* İçerik */}
+        <div className="pb-16">
+          <Outlet />
+        </div>
       </div>
-    </div>
-    
     </>
   );
 }
