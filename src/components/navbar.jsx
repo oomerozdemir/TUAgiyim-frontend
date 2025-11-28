@@ -30,7 +30,7 @@ export default function EnhancedNavbar() {
   const { auth, logout } = useAuth(); 
   const { items } = useCart();
   const user = auth?.user;
-  const role = user?.role?.toLowerCase?.();
+  const role = user?.role?.toLowerCase?.(); // Rol kontrolü
 
   const isHomePage = location.pathname === "/";
   const cartCount = items?.length || 0;
@@ -64,18 +64,17 @@ export default function EnhancedNavbar() {
   // --- STİL MANTIĞI ---
   const isTransparent = isHomePage && !scrolled && !open;
 
-    const navBaseClasses = "top-0 inset-x-0 z-50 transition-all duration-500 ease-in-out border-b";
+  const navBaseClasses = "top-0 inset-x-0 z-50 transition-all duration-500 ease-in-out border-b";
   const positionClass = isHomePage ? "fixed" : "sticky";
   
   const appearanceClasses = isTransparent
     ? "bg-gradient-to-b from-black/60 to-transparent border-white/5 backdrop-blur-[2px]" 
-    : "bg-[#FAF9F6]/95 backdrop-blur-xl shadow-sm border-[#E0DCD5]"; // Daha soft bir beyaz/krem
+    : "bg-[#FAF9F6]/95 backdrop-blur-xl shadow-sm border-[#E0DCD5]"; 
 
   const textColor = isTransparent 
     ? "text-white/90 hover:text-white" 
     : "text-[#4A4A4A] hover:text-black";
   
-  // Link Altı Çizgisi ve Aktif Rengi: Artık Turuncu Değil, Beige.
   const activeLinkClass = `font-medium ${ACCENT_COLOR_TEXT} relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#A39075]`; 
 
   const iconBtnClass = `transition-all duration-300 p-2.5 rounded-full relative group ${
@@ -101,7 +100,7 @@ export default function EnhancedNavbar() {
     <header className={`${positionClass} ${navBaseClasses} ${appearanceClasses}`}>
       <nav className="mx-auto max-w-[1600px] px-6 h-24 flex items-center">
         
-        {/* SOL BÖLÜM */}
+        {/* SOL BÖLÜM (Desktop) */}
         <div className="hidden md:flex flex-1 items-center justify-start gap-8">
           {LINKS.map((l) => {
             if (l.id === 'kategoriler') {
@@ -115,7 +114,7 @@ export default function EnhancedNavbar() {
                             <ChevronDown size={14} className={`transition-all duration-300 group-hover:rotate-180 opacity-60`} />
                         </Link>
 
-                        {/* DROPDOWN - Beyaz ve Gri tonlar hakim */}
+                        {/* DROPDOWN */}
                         <div className="absolute top-full left-0 pt-6 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-50">
                             <div className="bg-[#FAF9F6] rounded-xl shadow-xl border border-[#E0DCD5] overflow-hidden py-3 ring-1 ring-black/5">
                                 
@@ -160,7 +159,6 @@ export default function EnhancedNavbar() {
                     className={getLinkClass(location.pathname === l.to)}
                 >
                     {l.label}
-                    {/* Hover Çizgisi - Soft Gold */}
                     <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-[#A39075] group-hover:w-full transition-all duration-300" />
                 </Link>
             );
@@ -177,7 +175,7 @@ export default function EnhancedNavbar() {
           />
         </Link>
 
-        {/* SAĞ BÖLÜM: İkonlar */}
+        {/* SAĞ BÖLÜM: İkonlar (Desktop) */}
         <div className="hidden md:flex flex-1 items-center justify-end gap-3">
           {user ? (
             <div className="relative group/user">
@@ -194,11 +192,14 @@ export default function EnhancedNavbar() {
                   <Link to="/hesabim" className="w-full flex items-center gap-3 px-5 py-3 text-sm text-[#5C5346] hover:bg-[#F0EBE0] hover:text-[#2D2D2D] transition-all" onClick={() => setMenu(false)}>
                     <UserCircle size={18} /> Hesabım
                   </Link>
+                  
+                  {/* ✅ DESKTOP: Admin Linki */}
                   {role === "admin" && (
                     <Link to="/admin" className="w-full flex items-center gap-3 px-5 py-3 text-sm text-[#5C5346] hover:bg-[#F0EBE0] hover:text-[#2D2D2D] transition-all" onClick={() => setMenu(false)}>
                       <Settings size={18} /> Yönetim Paneli
                     </Link>
                   )}
+
                   <div className="h-px bg-[#E0DCD5] my-2" />
                   <button className="w-full flex items-center gap-3 px-5 py-3 text-left text-sm text-red-500 hover:bg-red-50 transition-all" onClick={handleLogout}>
                     <LogOut size={18} /> Çıkış Yap
@@ -219,7 +220,6 @@ export default function EnhancedNavbar() {
           <Link to="/sepet" className={`${iconBtnClass} relative`} aria-label="Sepet">
             <ShoppingBag strokeWidth={1.5} size={22} />
             {cartCount > 0 && (
-              // SEPET BADGE: Turuncu yerine Siyah veya Koyu Gri, yazı beyaz. Çok daha class.
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#2D2D2D] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md border-2 border-white">
                 {cartCount}
               </span>
@@ -241,6 +241,7 @@ export default function EnhancedNavbar() {
         <div className="md:hidden absolute top-full left-0 w-full h-[calc(100vh-96px)] bg-[#FAF9F6] border-t border-[#E0DCD5] shadow-2xl overflow-y-auto z-40 animate-in slide-in-from-top duration-300">
           <div className="p-6 flex flex-col h-full">
             
+            {/* Ana Linkler */}
             <div className="flex flex-col gap-2">
               {LINKS.map((l) => (
                 <div key={l.to}>
@@ -272,6 +273,7 @@ export default function EnhancedNavbar() {
             
             <div className="h-px bg-[#E0DCD5] my-6" />
             
+            {/* Kullanıcı Paneli (Mobil) */}
             <div className="mt-auto space-y-4">
                 {user ? (
                   <div className="bg-[#F5F2EB] p-5 rounded-2xl border border-[#E0DCD5]">
@@ -288,6 +290,13 @@ export default function EnhancedNavbar() {
                       <Link to="/hesabim" className="w-full flex items-center gap-3 text-[#5C5346] py-3 px-4 hover:bg-white rounded-lg transition-all" onClick={() => setOpen(false)}>
                         <UserCircle size={18} /> Hesabım
                       </Link>
+
+                      {/* ✅ MOBİL: Admin Linki (EKLENDİ) */}
+                      {role === "admin" && (
+                        <Link to="/admin" className="w-full flex items-center gap-3 text-[#5C5346] py-3 px-4 hover:bg-white rounded-lg transition-all" onClick={() => setOpen(false)}>
+                          <Settings size={18} /> Yönetim Paneli
+                        </Link>
+                      )}
                       
                       <button className="w-full flex items-center gap-3 text-red-500 py-3 px-4 hover:bg-white rounded-lg transition-all" onClick={() => { setOpen(false); handleLogout(); }}>
                         <LogOut size={18} /> Çıkış Yap
