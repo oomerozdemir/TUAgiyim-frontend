@@ -34,7 +34,7 @@ const getOrderStatusUI = (status) => {
   switch (status) {
     case "PAID":
       return { 
-        label: "Siparişiniz Onaylandı", 
+        label: "Siparişiniz Hazırlanıyor", 
         className: "bg-green-50 text-green-700 border-green-200",
         icon: <CheckCircle size={14} />
       };
@@ -44,6 +44,13 @@ const getOrderStatusUI = (status) => {
         className: "bg-blue-50 text-blue-700 border-blue-200",
         icon: <Truck size={14} />
       };
+    case "DELIVERED": // YENİ
+      return { 
+        label: "Teslim Edildi", 
+        className: "bg-purple-50 text-purple-700 border-purple-200",
+        icon: <Box size={14} />
+      };
+    case "AWAITING_PAYMENT":
     case "PENDING":
       return { 
         label: "Ödeme Bekleniyor", 
@@ -407,6 +414,19 @@ export default function AccountPage() {
                                 </div>
                             )}
                         </div>
+
+                         {/* KARGO TAKİP (YENİ) */}
+                            {(order.cargoTrackingNumber || order.cargoCompany) && (
+                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm animate-in fade-in slide-in-from-right-4 duration-500">
+                                    <div className="flex items-center gap-2 text-blue-800 mb-2 font-bold uppercase text-xs tracking-wider">
+                                        <Truck size={14} /> Kargo Bilgileri
+                                    </div>
+                                    <div className="text-blue-900 space-y-1">
+                                        {order.cargoCompany && <p>Firma: <span className="font-medium">{order.cargoCompany}</span></p>}
+                                        {order.cargoTrackingNumber && <p>Takip No: <span className="font-mono font-medium tracking-wide">{order.cargoTrackingNumber}</span></p>}
+                                    </div>
+                                </div>
+                            )}
 
                     </div>
                   </div>

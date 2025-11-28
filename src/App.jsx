@@ -152,12 +152,6 @@ export default function App() {
 tasarım kısımını hallet
 mobil responsiveligi kontrol et
 
-sepette ürün varken bildirim olarak gözüksün tıklama isteği uyandırması için
-
-değerlendirmesini güncelleme diye bir yer olmasın ürün altında. 
-
-kullanıcı gözünden ayarlamaları yap
-
 değişim/iade sistemini kur
 
 iade ve degisim politikasi hakkinda konus
@@ -167,4 +161,6 @@ yani tek bir ürün olan bluzun altınaki etek içinde ek olarak isteme eylemini
 ya da bir ürün içine 2 fiyat eklemesi yapabilelim hem takım olarak hem üst ürün hem alt ürün olarak ayrı bir fiyatlandırma yapalım kullanıcı kendi seçeneği ile ilerlesin
 
 admın panelınde kargolandı dediğimizde kargolandı maili gitsin kullanıcıya o siparişe özel 
+
+seo çalışması
 */
