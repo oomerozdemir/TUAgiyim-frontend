@@ -34,8 +34,8 @@ export default function AdminOrders() {
   const [updatingId, setUpdatingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("");
   
-  // Değişiklikleri tutan state
-  const [edits, setEdits] = useState({}); // { orderId: { status, trackingNo, company } }
+  // Düzenleme state'i: { [orderId]: { status, trackingNo, company } }
+  const [edits, setEdits] = useState({});
 
   const loadOrders = async (status) => {
     setLoading(true);
@@ -46,7 +46,7 @@ export default function AdminOrders() {
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
-      alert("Siparişler yüklenirken bir hata oluştu.");
+      alert("Siparişler yüklenirken hata oluştu.");
     } finally {
       setLoading(false);
     }
@@ -78,14 +78,12 @@ export default function AdminOrders() {
 
     setUpdatingId(orderId);
     try {
-      // API'ye status + kargo bilgilerini gönderiyoruz
       const { data } = await api.patch(`/api/orders/${orderId}/status`, {
         status: editData.status,
-        cargoTrackingNumber: editData.trackingNo,
-        cargoCompany: editData.company
+        cargoTrackingNumber: editData.trackingNo, // Backend bu alanı bekliyor
+        cargoCompany: editData.company            // Backend bu alanı bekliyor
       });
       
-      // Listeyi güncelle
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, ...data } : o))
       );
@@ -103,7 +101,8 @@ export default function AdminOrders() {
     new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(Number(n || 0));
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto py-8">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-bold text-black">Sipariş Yönetimi</h2>
@@ -125,6 +124,7 @@ export default function AdminOrders() {
         </div>
       </div>
 
+      {/* Liste */}
       {loading ? (
         <div className="text-center py-20">Yükleniyor...</div>
       ) : orders.length === 0 ? (
@@ -152,7 +152,7 @@ export default function AdminOrders() {
                 </div>
 
                 <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Teslimat */}
+                  {/* Sol: Teslimat & Kargo Bilgisi */}
                   <div className="space-y-4 text-sm border-r border-dashed border-beige/40 pr-0 lg:pr-8">
                     <h4 className="font-bold text-black/40 uppercase text-xs tracking-wider mb-2 flex items-center gap-2">
                       <MapPin size={14} /> Teslimat Bilgileri
@@ -163,17 +163,18 @@ export default function AdminOrders() {
                       <p>{order.shippingDistrict} / {order.shippingCity}</p>
                       {order.shippingPhone && <p className="text-black/60 text-xs mt-1">{order.shippingPhone}</p>}
                     </div>
+
                     {/* Mevcut Kargo Bilgisi Varsa Göster */}
                     {(order.cargoTrackingNumber || order.cargoCompany) && (
                         <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded text-blue-800 text-xs">
-                            <p className="font-bold mb-1">📦 Kargo Bilgileri:</p>
-                            <p>Firma: {order.cargoCompany || "-"}</p>
-                            <p>Takip No: <span className="font-mono">{order.cargoTrackingNumber || "-"}</span></p>
+                            <p className="font-bold mb-1 flex items-center gap-1"><Truck size={12}/> Kargo Bilgileri:</p>
+                            {order.cargoCompany && <p>Firma: {order.cargoCompany}</p>}
+                            {order.cargoTrackingNumber && <p>Takip No: <span className="font-mono select-all">{order.cargoTrackingNumber}</span></p>}
                         </div>
                     )}
                   </div>
 
-                  {/* Sipariş Detayı */}
+                  {/* Orta & Sağ: Ürünler ve Yönetim */}
                   <div className="lg:col-span-2 flex flex-col justify-between">
                     <div>
                         <h4 className="font-bold text-black/40 uppercase text-xs tracking-wider mb-3 flex items-center gap-2">
@@ -182,71 +183,73 @@ export default function AdminOrders() {
                         <div className="space-y-3">
                         {order.items.map((item) => (
                             <div key={item.id} className="flex items-center gap-4 p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                                <div className="w-12 h-14 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                <div className="w-12 h-14 bg-gray-100 rounded overflow-hidden flex-shrink-0 border border-gray-200">
                                     {item.product?.images?.[0]?.url && <img src={item.product.images[0].url} alt="" className="w-full h-full object-cover" />}
                                 </div>
                                 <div className="flex-1 min-w-0 text-sm">
-                                    <div className="font-medium text-black truncate">{item.product?.name}</div>
+                                    <div className="font-medium text-black truncate">{item.product?.name || "Silinmiş Ürün"}</div>
                                     <div className="text-black/50 text-xs">
-                                        {item.sizeLabel && `Beden: ${item.sizeLabel} `}
-                                        {item.colorLabel && `Renk: ${item.colorLabel}`}
+                                        {item.sizeLabel && <span className="mr-2">Beden: {item.sizeLabel}</span>}
+                                        {item.colorLabel && <span>Renk: {item.colorLabel}</span>}
                                     </div>
                                 </div>
-                                <div className="text-right text-sm font-bold text-black">{tl(item.price)} <span className="text-xs text-black/40 font-normal">x{item.quantity}</span></div>
+                                <div className="text-right text-sm">
+                                    <div className="font-bold text-black">{tl(item.price)}</div>
+                                    <div className="text-xs text-black/40">x{item.quantity}</div>
+                                </div>
                             </div>
                         ))}
                         </div>
                     </div>
 
-                    {/* Aksiyon Alanı */}
-                    <div className="mt-6 pt-4 border-t border-beige/30">
-                        <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-4">
-                            <div className="text-sm">
-                                <span className="text-black/50 mr-2">Toplam:</span>
-                                <span className="text-xl font-bold text-black">{tl(order.total)}</span>
-                            </div>
+                    {/* Alt Yönetim Barı */}
+                    <div className="mt-6 pt-4 border-t border-beige/30 flex flex-col sm:flex-row items-end sm:items-center justify-between gap-4">
+                        <div className="text-sm">
+                            <span className="text-black/50 mr-2">Toplam Tutar:</span>
+                            <span className="text-xl font-bold text-black">{tl(order.total)}</span>
+                        </div>
 
-                            <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
-                                <div className="flex items-center gap-2 w-full sm:w-auto">
-                                    <select
-                                        className={`pl-3 pr-8 py-2 rounded-lg border text-sm font-medium outline-none appearance-none cursor-pointer transition-colors w-full sm:w-48
-                                            ${isChanged ? "bg-yellow-50 border-yellow-300 text-yellow-800" : "bg-white border-black/20 hover:border-gold text-black"}
-                                        `}
-                                        value={currentStatus}
-                                        disabled={updatingId === order.id}
-                                        onChange={(e) => handleEditChange(order.id, 'status', e.target.value)}
-                                    >
-                                        {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                                    </select>
-                                </div>
+                        <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+                            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                                <select
+                                    className={`pl-3 pr-8 py-2 rounded-lg border text-sm font-medium outline-none cursor-pointer transition-colors
+                                        ${isChanged ? "bg-yellow-50 border-yellow-300 text-yellow-800" : "bg-white border-black/20 hover:border-gold text-black"}
+                                    `}
+                                    value={currentStatus}
+                                    disabled={updatingId === order.id}
+                                    onChange={(e) => handleEditChange(order.id, 'status', e.target.value)}
+                                >
+                                    {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                                </select>
 
-                                {/* Eğer Durum SHIPPED seçildiyse Kargo Inputlarını Göster */}
+                                {/* Kargo Giriş Alanları (Sadece SHIPPED seçiliyse görünür) */}
                                 {currentStatus === "SHIPPED" && (
-                                    <div className="flex gap-2 w-full sm:w-auto animate-in slide-in-from-top-2 fade-in">
-                                        <input 
-                                            type="text" 
-                                            placeholder="Kargo Firması (Örn: Yurtiçi)" 
-                                            className="border rounded px-2 py-1.5 text-xs w-1/2 sm:w-32"
-                                            value={editState.company || order.cargoCompany || ""}
-                                            onChange={(e) => handleEditChange(order.id, 'company', e.target.value)}
-                                        />
-                                        <input 
-                                            type="text" 
-                                            placeholder="Takip No" 
-                                            className="border rounded px-2 py-1.5 text-xs w-1/2 sm:w-32"
-                                            value={editState.trackingNo || order.cargoTrackingNumber || ""}
-                                            onChange={(e) => handleEditChange(order.id, 'trackingNo', e.target.value)}
-                                        />
-                                    </div>
+                                  <>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Firma (Örn: Yurtiçi)" 
+                                        className="border rounded px-2 py-2 text-sm w-32 focus:border-gold outline-none"
+                                        value={editState.company !== undefined ? editState.company : (order.cargoCompany || "")}
+                                        onChange={(e) => handleEditChange(order.id, 'company', e.target.value)}
+                                    />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Takip No" 
+                                        className="border rounded px-2 py-2 text-sm w-32 focus:border-gold outline-none"
+                                        value={editState.trackingNo !== undefined ? editState.trackingNo : (order.cargoTrackingNumber || "")}
+                                        onChange={(e) => handleEditChange(order.id, 'trackingNo', e.target.value)}
+                                    />
+                                  </>
                                 )}
 
+                                {/* Kaydet Butonu */}
                                 {isChanged && (
-                                    <div className="flex items-center gap-1 mt-1">
-                                        <button onClick={() => saveOrder(order.id)} disabled={updatingId === order.id} className="flex items-center gap-1 px-3 py-2 bg-black text-white rounded-lg text-xs font-bold hover:bg-gold transition-colors">
-                                            {updatingId === order.id ? "..." : <><Save size={14} /> KAYDET</>}
+                                    <div className="flex items-center gap-1">
+                                        <button onClick={() => saveOrder(order.id)} disabled={updatingId === order.id} className="flex items-center gap-1 px-4 py-2 bg-black text-white rounded-lg text-sm font-bold hover:bg-gold transition-colors">
+                                            {updatingId === order.id ? "..." : <><Save size={16} /> KAYDET</>}
                                         </button>
                                         <button onClick={() => cancelEdit(order.id)} disabled={updatingId === order.id} className="p-2 border border-black/10 text-black/50 rounded-lg hover:bg-red-50 hover:text-red-600">
-                                            <X size={14} />
+                                            <X size={18} />
                                         </button>
                                     </div>
                                 )}
