@@ -87,11 +87,7 @@ export default function EnhancedNavbar() {
       : "bg-[#EBE5D9] text-[#5C5346] border-[#D6C4A8] hover:border-[#A39075]"
   }`;
 
-  const LogoComponent = () => (
-    <div className={`font-serif font-bold text-2xl tracking-tighter flex items-center h-full transition-all duration-500 ${isTransparent ? "text-white" : "text-black"}`}>
-       TUA<span className="text-[#A39075]">.</span>
-    </div>
-  );
+
 
   const getLinkClass = (isActive) => 
     `text-sm tracking-wide transition-all duration-300 relative group ${isActive ? activeLinkClass : textColor}`;
@@ -162,7 +158,12 @@ export default function EnhancedNavbar() {
 
         {/* ORTA BÖLÜM: Logo */}
         <Link to="/" className="flex-shrink-0 flex items-center justify-center transition-transform duration-500 hover:scale-105 z-10">
-           <LogoComponent />
+          <img 
+            src={LOGO_URL} 
+            alt="TUA Design Logo" 
+            className="h-40 w-auto object-contain pt-5 transition-all duration-500"
+            style={logoStyle}
+          />
         </Link>
 
         {/* SAĞ BÖLÜM: İkonlar (Desktop) */}
