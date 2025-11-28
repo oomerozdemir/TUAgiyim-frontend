@@ -9,8 +9,6 @@ const LOGO_URL = "/images/logo2.png";
 
 // === RENK PALETİ CONSTANTS ===
 const ACCENT_COLOR_TEXT = "text-[#A39075]"; 
-const ACCENT_HOVER_TEXT = "hover:text-[#8C7B62]";
-const ACCENT_BG = "bg-[#D6C4A8]";
 
 const LINKS = [
   { to: "/kategoriler", label: "Kategoriler", id: "kategoriler" },
@@ -30,7 +28,7 @@ export default function EnhancedNavbar() {
   const { auth, logout } = useAuth(); 
   const { items } = useCart();
   const user = auth?.user;
-  const role = user?.role?.toLowerCase?.(); // Rol kontrolü
+  const role = user?.role?.toLowerCase?.();
 
   const isHomePage = location.pathname === "/";
   const cartCount = items?.length || 0;
@@ -89,9 +87,11 @@ export default function EnhancedNavbar() {
       : "bg-[#EBE5D9] text-[#5C5346] border-[#D6C4A8] hover:border-[#A39075]"
   }`;
 
-  const logoStyle = isTransparent 
-    ? { filter: "brightness(0) invert(1)" } 
-    : { filter: "none" };
+  const LogoComponent = () => (
+    <div className={`font-serif font-bold text-2xl tracking-tighter flex items-center h-full transition-all duration-500 ${isTransparent ? "text-white" : "text-black"}`}>
+       TUA<span className="text-[#A39075]">.</span>
+    </div>
+  );
 
   const getLinkClass = (isActive) => 
     `text-sm tracking-wide transition-all duration-300 relative group ${isActive ? activeLinkClass : textColor}`;
@@ -114,16 +114,13 @@ export default function EnhancedNavbar() {
                             <ChevronDown size={14} className={`transition-all duration-300 group-hover:rotate-180 opacity-60`} />
                         </Link>
 
-                        {/* DROPDOWN */}
                         <div className="absolute top-full left-0 pt-6 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-50">
                             <div className="bg-[#FAF9F6] rounded-xl shadow-xl border border-[#E0DCD5] overflow-hidden py-3 ring-1 ring-black/5">
-                                
                                 <div className="px-5 py-3 border-b border-[#E0DCD5] mb-2">
                                     <p className="text-[10px] font-bold text-[#8C7B62] uppercase tracking-widest">
                                         Koleksiyonlar
                                     </p>
                                 </div>
-                                
                                 {categories.length > 0 ? (
                                     <div className="space-y-1 px-2">
                                         {categories.map((cat) => (
@@ -140,7 +137,6 @@ export default function EnhancedNavbar() {
                                 ) : (
                                     <div className="px-4 py-6 text-sm text-gray-400 text-center">Yükleniyor...</div>
                                 )}
-                                
                                 <div className="mt-2 pt-3 px-4 border-t border-[#E0DCD5]">
                                     <Link to="/kategoriler" className="w-full block py-2.5 text-xs font-bold text-center text-white bg-[#2D2D2D] hover:bg-[#8C7B62] rounded-lg transition-all duration-300">
                                         TÜMÜNÜ GÖR
@@ -151,7 +147,6 @@ export default function EnhancedNavbar() {
                     </div>
                 );
             }
-
             return (
                 <Link 
                     key={l.to}
@@ -167,12 +162,7 @@ export default function EnhancedNavbar() {
 
         {/* ORTA BÖLÜM: Logo */}
         <Link to="/" className="flex-shrink-0 flex items-center justify-center transition-transform duration-500 hover:scale-105 z-10">
-          <img 
-            src={LOGO_URL} 
-            alt="TUA Design Logo" 
-            className="h-40 w-auto object-contain pt-5 transition-all duration-500"
-            style={logoStyle}
-          />
+           <LogoComponent />
         </Link>
 
         {/* SAĞ BÖLÜM: İkonlar (Desktop) */}
@@ -193,7 +183,6 @@ export default function EnhancedNavbar() {
                     <UserCircle size={18} /> Hesabım
                   </Link>
                   
-                  {/* ✅ DESKTOP: Admin Linki */}
                   {role === "admin" && (
                     <Link to="/admin" className="w-full flex items-center gap-3 px-5 py-3 text-sm text-[#5C5346] hover:bg-[#F0EBE0] hover:text-[#2D2D2D] transition-all" onClick={() => setMenu(false)}>
                       <Settings size={18} /> Yönetim Paneli
@@ -236,10 +225,12 @@ export default function EnhancedNavbar() {
         </button>
       </nav>
 
-      {/* MOBİL MENÜ (Overlay) */}
+      {/* MOBİL MENÜ (Overlay) - DÜZELTİLDİ */}
+      {/* 'fixed' pozisyonu ve 'dvh' kullanımı ile tam ekran kapsama */}
       {open && (
-        <div className="md:hidden absolute top-full left-0 w-full h-[calc(100vh-96px)] bg-[#FAF9F6] border-t border-[#E0DCD5] shadow-2xl overflow-y-auto z-40 animate-in slide-in-from-top duration-300">
-          <div className="p-6 flex flex-col h-full">
+        <div className="md:hidden fixed top-24 left-0 w-full h-[calc(100dvh-6rem)] bg-[#FAF9F6] border-t border-[#E0DCD5] shadow-2xl overflow-y-auto z-50 animate-in slide-in-from-top duration-300">
+          {/* min-h-full ve pb-32 ile içeriğin kaydırılabilir olması ve alt kısmın görünürlüğü garanti altına alındı */}
+          <div className="p-6 flex flex-col min-h-full pb-32">
             
             {/* Ana Linkler */}
             <div className="flex flex-col gap-2">
@@ -273,7 +264,7 @@ export default function EnhancedNavbar() {
             
             <div className="h-px bg-[#E0DCD5] my-6" />
             
-            {/* Kullanıcı Paneli (Mobil) */}
+            {/* Kullanıcı Paneli (Mobil) - Alt kısma itildi (mt-auto) */}
             <div className="mt-auto space-y-4">
                 {user ? (
                   <div className="bg-[#F5F2EB] p-5 rounded-2xl border border-[#E0DCD5]">
@@ -291,7 +282,6 @@ export default function EnhancedNavbar() {
                         <UserCircle size={18} /> Hesabım
                       </Link>
 
-                      {/* ✅ MOBİL: Admin Linki (EKLENDİ) */}
                       {role === "admin" && (
                         <Link to="/admin" className="w-full flex items-center gap-3 text-[#5C5346] py-3 px-4 hover:bg-white rounded-lg transition-all" onClick={() => setOpen(false)}>
                           <Settings size={18} /> Yönetim Paneli

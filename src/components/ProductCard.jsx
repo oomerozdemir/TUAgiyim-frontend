@@ -314,7 +314,7 @@ export default function ProductCard({
             type="button"
             aria-label="Sepete ekle"
             className={`grid place-items-center w-10 h-10 rounded-full text-white transition-all active:scale-90 shadow-md
-              ${showError ? 'bg-red-600 hover:bg-red-700 animate-shake' : 'bg-black hover:bg-gold'}
+              ${showError ? 'bg-red-600 hover:bg-red-700 animate-shake' : 'bg-gold hover:bg-black'}
             `}
             onClick={(e) => {
               e.preventDefault();
@@ -332,7 +332,7 @@ export default function ProductCard({
         <button
           type="button"
           className={`sm:hidden absolute right-3 bottom-3 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-colors z-20
-            ${showError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-black text-white hover:bg-gold'}
+            ${showError ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gold text-white hover:bg-black'}
           `}
           onClick={(e) => {
             e.preventDefault();
