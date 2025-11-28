@@ -87,7 +87,9 @@ export default function EnhancedNavbar() {
       : "bg-[#EBE5D9] text-[#5C5346] border-[#D6C4A8] hover:border-[#A39075]"
   }`;
 
-
+  const logoStyle = isTransparent 
+    ? { filter: "brightness(0) invert(1)" } 
+    : { filter: "none" };
 
   const getLinkClass = (isActive) => 
     `text-sm tracking-wide transition-all duration-300 relative group ${isActive ? activeLinkClass : textColor}`;
