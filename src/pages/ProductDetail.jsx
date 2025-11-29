@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ShoppingBag, Star } from "lucide-react";
+import { ShoppingBag, Star, AlertCircle } from "lucide-react";
 import api from "../lib/api";
 import FavoriteButton from "../components/FavoriteButton";
 import CategoryScroller from "../components/CategoryScroller";

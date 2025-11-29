@@ -155,10 +155,7 @@ değişim/iade sistemini kur
 
 iade ve degisim politikasi hakkinda konus
 
-takım olarak eklenen ürünleri ayrı ayrı eklendiğinde resimdeki eteği de ekleyebildikleri eklendiğindeki toplam fiyatı göstreren bir yapı kuralım
-yani tek bir ürün olan bluzun altınaki etek içinde ek olarak isteme eylemini gösterelim kullanıcıya.
-ya da bir ürün içine 2 fiyat eklemesi yapabilelim hem takım olarak hem üst ürün hem alt ürün olarak ayrı bir fiyatlandırma yapalım kullanıcı kendi seçeneği ile ilerlesin
-
+sepete eklerken beden ve renk secimi yapmadan ekleyemiyolar ya bunu gosterelim kullaniciya neden ekleyemedikleri konusunda kafa karisikligi olmasin
 
 seo çalışması
 
