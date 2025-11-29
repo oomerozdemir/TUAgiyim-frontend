@@ -26,6 +26,9 @@ export default function ProductDetail() {
   const [compSizeId, setCompSizeId] = useState(null);   
   const [compColorId, setCompColorId] = useState(null); 
 
+  const [showError, setShowError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
 
   const { setItems: setBreadcrumb } = useBreadcrumbs();
   const [reviewSummary, setReviewSummary] = useState(null);
@@ -35,6 +38,14 @@ export default function ProductDetail() {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [savingReview, setSavingReview] = useState(false);
+
+    // Seçim yapıldığında hatayı temizle
+  useEffect(() => {
+    if (showError) {
+      setShowError(false);
+      setErrorMsg("");
+    }
+  }, [selectedSizeId, selectedColorId, compSizeId, compColorId, addComp]);
 
   // 1. Ürünü Çek
   useEffect(() => {
@@ -164,6 +175,31 @@ export default function ProductDetail() {
 
    // SEPETE EKLEME (Çoklu)
   const handleAddToCart = () => {
+    let missing = [];
+
+    const hasSizes = product.sizes?.length > 0;
+    const hasColors = product.colors?.length > 0;
+
+    if (hasColors && !selectedColorId) missing.push("Renk");
+    if (hasSizes && !selectedSizeId) missing.push("Beden");
+
+    if (addComp && compProduct) {
+        const compHasSizes = compProduct.sizes?.length > 0;
+        const compHasColors = compProduct.colors?.length > 0;
+        
+        if (compHasColors && !compColorId) missing.push("Kombin Rengi");
+        if (compHasSizes && !compSizeId) missing.push("Kombin Bedeni");
+    }
+
+    // Eğer eksik varsa hata göster ve dur
+    if (missing.length > 0) {
+        setShowError(true);
+        setErrorMsg(`Lütfen seçim yapınız: ${missing.join(", ")}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+
+
     // 1. Ana Ürünü Ekle
     const mainSizeLabel = product.sizes?.find((s) => s.id === selectedSizeId)?.label || null;
     const mainColorLabel = product.colors?.find((c) => c.id === selectedColorId)?.label || null;
@@ -221,6 +257,13 @@ export default function ProductDetail() {
   const totalPrice = Number(product.price) + (addComp && compProduct ? Number(compProduct.price) : 0);
 
 
+    // Hata kontrolü için yardımcı değişkenler
+  const isColorMissing = showError && product.colors?.length > 0 && !selectedColorId;
+  const isSizeMissing = showError && product.sizes?.length > 0 && !selectedSizeId;
+  const isCompColorMissing = showError && addComp && compProduct?.colors?.length > 0 && !compColorId;
+  const isCompSizeMissing = showError && addComp && compProduct?.sizes?.length > 0 && !compSizeId;
+
+
   return (
     <section className="max-w-7xl mx-auto px-4 py-10">
       {/* başlık + kategori scroller */}
@@ -258,6 +301,7 @@ export default function ProductDetail() {
           )}
         </div>
 
+
         {/* SAĞ: Bilgiler */}
         <div className="space-y-8">
             
@@ -273,18 +317,32 @@ export default function ProductDetail() {
                 )}
             </div>
 
+            {/* HATA MESAJI (EN ÜSTTE) */}
+            {showError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700 animate-pulse">
+                    <AlertCircle size={20} />
+                    <span className="font-medium text-sm">{errorMsg}</span>
+                </div>
+            )}
+
             {/* ANA ÜRÜN SEÇENEKLERİ */}
-            <div className="space-y-6 p-6 bg-white border border-beige/40 rounded-xl">
+            <div className={`space-y-6 p-6 bg-white border rounded-xl transition-colors ${showError && (isColorMissing || isSizeMissing) ? "border-red-300 bg-red-50/30" : "border-beige/40"}`}>
                 {/* Renk */}
                 {product.colors?.length > 0 && (
                     <div>
-                        <div className="text-sm font-bold uppercase tracking-wider mb-3">Renk</div>
+                        <div className={`text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isColorMissing ? "text-red-600" : "text-black"}`}>
+                            Renk {isColorMissing && <span className="text-[10px] font-normal lowercase bg-red-100 px-2 py-0.5 rounded-full">seçiniz</span>}
+                        </div>
                         <div className="flex gap-2">
                             {product.colors.map(c => (
                                 <button
                                     key={c.id}
                                     onClick={() => setSelectedColorId(c.id)}
-                                    className={`w-8 h-8 rounded-full border ${selectedColorId === c.id ? "ring-2 ring-black ring-offset-2" : "border-black/10"}`}
+                                    className={`w-8 h-8 rounded-full border transition-all
+                                        ${selectedColorId === c.id 
+                                            ? "ring-2 ring-black ring-offset-2 scale-110" 
+                                            : isColorMissing ? "border-red-300 opacity-70" : "border-black/10 hover:scale-105"}
+                                    `}
                                     style={{ backgroundColor: getColorHex(c.label) }}
                                     title={c.label}
                                 />
@@ -295,8 +353,10 @@ export default function ProductDetail() {
                 {/* Beden */}
                 {product.sizes?.length > 0 && (
                     <div>
-                        <div className="text-sm font-bold uppercase tracking-wider mb-3">Beden</div>
-                        <div className="flex gap-2">
+                        <div className={`text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isSizeMissing ? "text-red-600" : "text-black"}`}>
+                            Beden {isSizeMissing && <span className="text-[10px] font-normal lowercase bg-red-100 px-2 py-0.5 rounded-full">seçiniz</span>}
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
                             {product.sizes.map(s => (
                                 <button
                                     key={s.id}
@@ -304,7 +364,8 @@ export default function ProductDetail() {
                                     disabled={s.stock <= 0}
                                     className={`h-10 min-w-[40px] px-3 border rounded text-sm font-medium transition-colors
                                         ${s.stock <= 0 ? "opacity-40 cursor-not-allowed bg-gray-100 decoration-line-through" : 
-                                          selectedSizeId === s.id ? "bg-black text-white border-black" : "hover:border-black text-black"}
+                                          selectedSizeId === s.id ? "bg-black text-white border-black" : 
+                                          isSizeMissing ? "border-red-300 text-red-600 bg-white hover:border-red-500" : "hover:border-black text-black"}
                                     `}
                                 >
                                     {s.label}
@@ -317,7 +378,9 @@ export default function ProductDetail() {
 
             {/* --- KOMBİNİ TAMAMLA (EĞER VARSA) --- */}
             {compProduct && (
-                <div className={`p-6 rounded-xl border-2 transition-all duration-300 ${addComp ? "border-gold bg-yellow-50/30" : "border-dashed border-gray-300 hover:border-gold/50"}`}>
+                <div className={`p-6 rounded-xl border-2 transition-all duration-300 
+                    ${showError && (isCompColorMissing || isCompSizeMissing) ? "border-red-300 bg-red-50/30" : 
+                      addComp ? "border-gold bg-yellow-50/30" : "border-dashed border-gray-300 hover:border-gold/50"}`}>
                     
                     <div className="flex items-start gap-4">
                         <div className="flex h-6 items-center">
@@ -338,17 +401,15 @@ export default function ProductDetail() {
                             </label>
                             
                             <div className="flex gap-4 mt-3">
-                                {/* Küçük Görsel */}
                                 <div className="w-16 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0">
                                     {compProduct.images?.[0]?.url && <img src={compProduct.images[0].url} className="w-full h-full object-cover" alt="" />}
                                 </div>
                                 
                                 <div>
-                                    <p className="font-medium text-sm">{compProduct.name}</p>
+                                    <p className="font-medium text-sm mb-2">{compProduct.name}</p>
                                     
-                                    {/* Kombin Ürün Seçenekleri (Sadece checkbox işaretliyse aktif) */}
                                     {addComp && (
-                                        <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-2">
+                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                                             {/* Beden Seçimi */}
                                             {compProduct.sizes?.length > 0 && (
                                                 <div className="flex gap-1 flex-wrap">
@@ -356,7 +417,10 @@ export default function ProductDetail() {
                                                         <button
                                                             key={s.id}
                                                             onClick={() => setCompSizeId(s.id)}
-                                                            className={`text-xs px-2 py-1 border rounded ${compSizeId === s.id ? "bg-black text-white border-black" : "bg-white"}`}
+                                                            className={`text-xs px-2 py-1 border rounded transition-colors ${
+                                                                compSizeId === s.id ? "bg-black text-white border-black" : 
+                                                                isCompSizeMissing ? "border-red-300 bg-white text-red-600" : "bg-white hover:border-black"
+                                                            }`}
                                                         >
                                                             {s.label}
                                                         </button>
@@ -370,11 +434,19 @@ export default function ProductDetail() {
                                                         <button
                                                             key={c.id}
                                                             onClick={() => setCompColorId(c.id)}
-                                                            className={`w-5 h-5 rounded-full border ${compColorId === c.id ? "ring-1 ring-black ring-offset-1" : ""}`}
+                                                            className={`w-5 h-5 rounded-full border transition-transform ${
+                                                                compColorId === c.id ? "ring-1 ring-black ring-offset-1 scale-110" : 
+                                                                isCompColorMissing ? "border-red-300" : ""
+                                                            }`}
                                                             style={{ backgroundColor: getColorHex(c.label) }}
                                                         />
                                                     ))}
                                                 </div>
+                                            )}
+                                            {(isCompColorMissing || isCompSizeMissing) && (
+                                                <p className="text-[10px] text-red-600 font-bold animate-pulse">
+                                                    * Seçenekleri belirleyiniz
+                                                </p>
                                             )}
                                         </div>
                                     )}
@@ -395,29 +467,20 @@ export default function ProductDetail() {
                 <div className="flex gap-4">
                     <button
                         onClick={handleAddToCart}
-                        disabled={
-                            // Ana ürün seçimi zorunlu
-                            (product.sizes?.length > 0 && !selectedSizeId) ||
-                            (product.colors?.length > 0 && !selectedColorId) ||
-                            // Kombin seçiliyse onun da seçimi zorunlu
-                            (addComp && compProduct?.sizes?.length > 0 && !compSizeId) ||
-                            (addComp && compProduct?.colors?.length > 0 && !compColorId) ||
-                            product.stock === 0
-                        }
-                        className="flex-1 bg-black text-white h-14 rounded-xl font-bold tracking-wide hover:bg-gold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        disabled={product.stock === 0}
+                        className="flex-1 bg-black text-white h-14 rounded-xl font-bold tracking-wide hover:bg-gold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         <ShoppingBag size={20} />
                         {addComp ? "İKİSİNİ DE SEPETE EKLE" : "SEPETE EKLE"}
                     </button>
                     <FavoriteButton
-                        productId={product.id}
                         initial={product.isFavorited}
                         className="w-14 h-14 border border-black/10 rounded-xl hover:border-black text-black"
                     />
                 </div>
             </div>
 
-            {/* Açıklama ve Özellikler */}
+            {/* Açıklama */}
             <div className="space-y-6 text-sm text-black/70 leading-relaxed">
                 <p>{product.description}</p>
                 {product.attributes?.length > 0 && (
