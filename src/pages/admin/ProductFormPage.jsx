@@ -19,14 +19,19 @@ export default function ProductFormPage() {
     sizes: [], // [{label, stock}]
     colors: [], // [{label, stock, images:[{url, publicId}]}]
     attributes: [], // [{label, value}]
+    complementaryId: ""
   });
 
   // Kategoriler
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get("/api/categories");
-        setAllCats(data);
+        const [catsRes, prodsRes] = await Promise.all([
+          api.get("/api/categories"),
+          api.get("/api/products?pageSize=1000") // Basit bir liste için
+        ]);
+        setAllCats(catsRes.data);
+        setAllProducts(prodsRes.data.items || []);
       } catch {}
     })();
   }, []);
@@ -63,6 +68,7 @@ export default function ProductFormPage() {
           : [],
         colors,
         attributes: Array.isArray(data.attributes) ? data.attributes : [],
+        complementaryId: data.complementaryId || "" 
       });
 
       if (data.categories) {
@@ -179,15 +185,7 @@ export default function ProductFormPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      // Renk görsellerini images payload'ına colorLabel ile ekle
-      const colorImages = (form.colors || []).flatMap((c) =>
-        (c.images || []).map((im) => ({
-          url: im.url,
-          publicId: im.publicId || null,
-          colorLabel: c.label?.trim(),
-        }))
-      );
-
+      const colorImages = (form.colors || []).flatMap((c) => (c.images || []).map((im) => ({ url: im.url, publicId: im.publicId || null, colorLabel: c.label?.trim(), })));
       const payload = {
         name: form.name.trim(),
         slug: form.slug.trim(),
@@ -195,21 +193,11 @@ export default function ProductFormPage() {
         price: Number(form.price),
         featured: !!form.featured,
         categoryIds: selectedCatIds,
-        // Genel görselleri koruyoruz (eski veriler kaybolmasın) ama yeni eklenmiyor
         images: [...form.images, ...colorImages],
-        sizes: form.sizes
-          .filter((s) => s.label?.trim())
-          .map((s) => ({ label: s.label.trim(), stock: Number(s.stock || 0) })),
-        colors: form.colors
-          .filter((c) => c.label?.trim())
-          .map((c) => ({ label: c.label.trim(), stock: Number(c.stock || 0) })),
-        ...(form.attributes?.length
-          ? {
-              attributes: form.attributes
-                .filter((a) => a.label?.trim() && a.value?.trim())
-                .map((a) => ({ label: a.label.trim(), value: a.value.trim() })),
-            }
-          : {}),
+        sizes: form.sizes.filter((s) => s.label?.trim()).map((s) => ({ label: s.label.trim(), stock: Number(s.stock || 0) })),
+        colors: form.colors.filter((c) => c.label?.trim()).map((c) => ({ label: c.label.trim(), stock: Number(c.stock || 0) })),
+        ...(form.attributes?.length ? { attributes: form.attributes.filter((a) => a.label?.trim() && a.value?.trim()).map((a) => ({ label: a.label.trim(), value: a.value.trim() })), } : {}),
+        complementaryId: form.complementaryId || null, 
       };
 
       if (id) await api.put(`/api/products/${id}`, payload);
@@ -276,6 +264,26 @@ export default function ProductFormPage() {
           />
           <span>Bu ürünü anasayfada öne çıkar</span>
         </label>
+
+         {/* TAMAMLAYICI ÜRÜN SEÇİMİ  */}
+        <div className="bg-white p-6 rounded-xl border border-beige/40">
+            <h3 className="font-medium text-lg border-b pb-2 mb-4">Kombin / Tamamlayıcı Ürün</h3>
+            <p className="text-sm text-gray-500 mb-2">Bu ürünle birlikte satılmasını önerdiğiniz diğer ürünü seçin (Örn: Bluz için Etek).</p>
+            <select 
+                className="w-full border rounded px-3 py-2 bg-white"
+                value={form.complementaryId}
+                onChange={(e) => setForm(f => ({ ...f, complementaryId: e.target.value }))}
+            >
+                <option value="">-- Seçiniz --</option>
+                {allProducts
+                    .filter(p => p.id !== id) // Kendini seçemesin
+                    .map(p => (
+                        <option key={p.id} value={p.id}>{p.name} ({p.price} TL)</option>
+                    ))
+                }
+            </select>
+        </div>
+
 
         {/* BEDENLER */}
         <div className="border rounded-xl p-4">

@@ -149,12 +149,7 @@ export default function App() {
   );
 }
 /* 
-odeme bekleniyor oluyor tamamlanmamis siparisler 
-bu boyle kalsin ama odeme beklenen siparisleri kullanici siparislerim kisminda odeme yapildiktan sonra gorsun sadece
 
-
-tasarım kısımını hallet
-mobil responsiveligi kontrol et
 
 değişim/iade sistemini kur
 

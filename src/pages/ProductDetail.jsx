@@ -18,6 +18,15 @@ export default function ProductDetail() {
   const [selectedSizeId, setSelectedSizeId] = useState(null);
   const [selectedColorId, setSelectedColorId] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0); // ana görsel index
+
+
+// --- KOMBİN (TAMAMLAYICI) DATASI ---
+  const [compProduct, setCompProduct] = useState(null); 
+  const [addComp, setAddComp] = useState(false);        
+  const [compSizeId, setCompSizeId] = useState(null);   
+  const [compColorId, setCompColorId] = useState(null); 
+
+
   const { setItems: setBreadcrumb } = useBreadcrumbs();
   const [reviewSummary, setReviewSummary] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -27,6 +36,7 @@ export default function ProductDetail() {
   const [comment, setComment] = useState("");
   const [savingReview, setSavingReview] = useState(false);
 
+  // 1. Ürünü Çek
   useEffect(() => {
     (async () => {
       try {
@@ -34,7 +44,14 @@ export default function ProductDetail() {
         const data = await res.json();
         setProduct(data);
 
-        // breadcrumb
+        // Tamamlayıcı ürün varsa state'e al
+        if (data.complementary) {
+            setCompProduct(data.complementary);
+        } else {
+            setCompProduct(null);
+            setAddComp(false);
+        }
+
         if (data) {
           setBreadcrumb([
             { label: "Anasayfa", to: "/" },
@@ -52,35 +69,23 @@ export default function ProductDetail() {
     })();
   }, [id, setBreadcrumb]);
 
-  // Son gezilen ürünler için localStorage kaydı
+ // 2. Son Gezilenlere Ekle
   useEffect(() => {
     if (!product) return;
-
-    const entry = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      images: product.images,
-      image: product.images?.[0]?.url || product.image?.url || "",
-      sizes: product.sizes || [],
-      colors: product.colors || [],
-      ratingCount: product.ratingCount || 0,
-      averageRating: product.averageRating || 0,
-      isFavorited: product.isFavorited || false,
-      stock: product.stock,
-    };
-
     try {
+      const entry = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+        stock: product.stock,
+        isFavorited: product.isFavorited
+      };
       let existing = JSON.parse(localStorage.getItem("lastViewedProducts") || "[]");
       existing = existing.filter((p) => p.id !== entry.id);
       existing.unshift(entry);
-      localStorage.setItem(
-        "lastViewedProducts",
-        JSON.stringify(existing.slice(0, 20))
-      );
-    } catch (e) {
-      console.error("lastViewedProducts error:", e);
-    }
+      localStorage.setItem("lastViewedProducts", JSON.stringify(existing.slice(0, 20)));
+    } catch (e) {}
   }, [product]);
 
   // ₺ format
@@ -104,75 +109,36 @@ export default function ProductDetail() {
   // Renk seçimi değiştiğinde thumbnail index'i sıfırla
   useEffect(() => setActiveIndex(0), [selectedColorId]);
 
+ // 3. Yorumları Çek
   useEffect(() => {
     if (!product?.id) return;
-
     const fetchReviews = async () => {
       try {
         const { data } = await api.get(`/api/reviews/product/${product.id}`);
-        setReviewSummary({
-          averageRating: data.averageRating,
-          ratingCount: data.ratingCount,
-        });
+        setReviewSummary({ averageRating: data.averageRating, ratingCount: data.ratingCount });
         setReviews(data.reviews || []);
         setMyReview(data.myReview || null);
         setCanReview(data.canReview);
-        if (data.myReview) {
-          setRating(data.myReview.rating);
-          setComment(data.myReview.comment || "");
-        }
-      } catch (e) {
-        console.error(e);
-      }
+        if (data.myReview) { setRating(data.myReview.rating); setComment(data.myReview.comment || ""); }
+      } catch (e) {}
     };
-
     fetchReviews();
   }, [product?.id]);
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <p className="text-black/60">Ürün yükleniyor...</p>
-      </div>
-    );
-  }
-  if (!product) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl font-semibold mb-4">Ürün bulunamadı 😢</h2>
-      </div>
-    );
-  }
+
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (savingReview || rating < 1) return;
-
     try {
       setSavingReview(true);
-      const { data } = await api.post("/api/reviews", {
-        productId: product.id,
-        rating,
-        comment,
-      });
-
+      const { data } = await api.post("/api/reviews", { productId: product.id, rating, comment });
       setMyReview(data);
-
+      // listeyi tazele
       const res = await api.get(`/api/reviews/product/${product.id}`);
-      setReviewSummary({
-        averageRating: res.data.averageRating,
-        ratingCount: res.data.ratingCount,
-      });
+      setReviewSummary({ averageRating: res.data.averageRating, ratingCount: res.data.ratingCount });
       setReviews(res.data.reviews || []);
-    } catch (e) {
-      console.error(e);
-      alert(
-        e?.response?.data?.message ||
-          "Değerlendirme kaydedilirken bir hata oluştu."
-      );
-    } finally {
-      setSavingReview(false);
-    }
+    } catch (e) { alert("Hata oluştu."); } finally { setSavingReview(false); }
   };
 
   // --- RENK BELİRLEME FONKSİYONU ---
@@ -196,6 +162,65 @@ export default function ProductDetail() {
     return "#e5e5e5"; // Tanınmayan renkler için varsayılan
   };
 
+   // SEPETE EKLEME (Çoklu)
+  const handleAddToCart = () => {
+    // 1. Ana Ürünü Ekle
+    const mainSizeLabel = product.sizes?.find((s) => s.id === selectedSizeId)?.label || null;
+    const mainColorLabel = product.colors?.find((c) => c.id === selectedColorId)?.label || null;
+    const mainImage = (product.images || []).find((im) => im.colorId === selectedColorId)?.url || hero;
+
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: mainImage,
+      sizeId: selectedSizeId,
+      sizeLabel: mainSizeLabel,
+      colorId: selectedColorId,
+      colorLabel: mainColorLabel,
+      quantity: 1,
+    });
+
+    // 2. Kombin Ürünü Seçiliyse Ekle
+    if (addComp && compProduct) {
+        const compSizeLabel = compProduct.sizes?.find((s) => s.id === compSizeId)?.label || null;
+        const compColorLabel = compProduct.colors?.find((c) => c.id === compColorId)?.label || null;
+        // Kombin ürünün resmi (varsayılan ilk resim)
+        const compImage = compProduct.images?.[0]?.url || ""; 
+
+        addItem({
+            productId: compProduct.id,
+            name: compProduct.name,
+            price: compProduct.price,
+            image: compImage,
+            sizeId: compSizeId,
+            sizeLabel: compSizeLabel,
+            colorId: compColorId,
+            colorLabel: compColorLabel,
+            quantity: 1,
+        });
+    }
+
+    navigate("/sepet");
+  };
+
+    if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <p className="text-black/60">Ürün yükleniyor...</p>
+      </div>
+    );
+  }
+  if (!product) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <h2 className="text-3xl font-semibold mb-4">Ürün bulunamadı 😢</h2>
+      </div>
+    );
+  }
+  const totalPrice = Number(product.price) + (addComp && compProduct ? Number(compProduct.price) : 0);
+
+
   return (
     <section className="max-w-7xl mx-auto px-4 py-10">
       {/* başlık + kategori scroller */}
@@ -207,199 +232,203 @@ export default function ProductDetail() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Sol: Galeri */}
+       {/* SOL: Galeri */}
         <div>
-          {/* büyük görsel */}
-          <div className="aspect-[3/4] bg-white border border-black/10 rounded-lg overflow-hidden flex items-center justify-center relative">
-            {/* Stok Tükendi Etiketi (Büyük Görsel Üzerinde) */}
+          <div className="aspect-[3/4] bg-white border border-black/10 rounded-lg overflow-hidden flex items-center justify-center relative mb-4">
             {product.stock === 0 && (
               <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center">
                 <span className="bg-black text-white text-lg px-4 py-2 font-bold tracking-widest">TÜKENDİ</span>
               </div>
             )}
-            {hero ? (
-              <img src={hero} alt={product.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="text-black/50 text-sm">Görsel bulunamadı</div>
-            )}
+            {hero ? <img src={hero} alt={product.name} className="w-full h-full object-cover" /> : <div className="text-black/50 text-sm">Görsel yok</div>}
           </div>
-
-          {/* thumbnails */}
+          
           {gallery?.length > 1 && (
-            <div className="mt-3 grid grid-cols-4 sm:grid-cols-6 gap-2">
-              {gallery.slice(0, 8).map((im, i) => (
+            <div className="grid grid-cols-5 gap-2">
+              {gallery.slice(0, 5).map((im, i) => (
                 <button
-                  key={im.id ?? im.url ?? i}
+                  key={i}
                   onClick={() => setActiveIndex(i)}
-                  className={`aspect-square rounded-md overflow-hidden border
-                    ${i === activeIndex ? "border-black" : "border-black/10 hover:border-black/40"}`}
-                  title={`Görsel ${i + 1}`}
+                  className={`aspect-square rounded border ${i === activeIndex ? "border-black" : "border-transparent hover:border-black/30"}`}
                 >
-                  <img src={im.url} alt="" className="w-full h-full object-cover" />
+                  <img src={im.url} className="w-full h-full object-cover rounded" alt="" />
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Sağ: Bilgi & aksiyonlar */}
-        <div className="lg:pl-6">
-          {/* fiyat */}
-          <div className="text-2xl md:text-3xl font-bold text-black">{tl(product.price)}</div>
-
-          {/* renk seçici */}
-          {Array.isArray(product.colors) && product.colors.length > 0 && (
-            <div className="mt-6">
-              <div className="text-sm font-medium mb-2">
-                Renk{selectedColorId ? `: ${product.colors.find(c => c.id === selectedColorId)?.label || ""}` : ""}
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {product.colors.map((c) => {
-                  const selected = selectedColorId === c.id;
-                  const disabled = Number(c.stock) <= 0;
-                  // Renk kodunu belirle
-                  const bgColor = getColorHex(c.label);
-
-                  return (
-                    <button
-                      key={c.id ?? c.label}
-                      type="button"
-                      disabled={disabled}
-                      onClick={() => !disabled && setSelectedColorId(c.id)}
-                      className={`w-9 h-9 rounded-full border shadow-sm transition-all
-                        ${disabled
-                          ? "border-gray-200 cursor-not-allowed opacity-40 relative after:content-[''] after:absolute after:top-1/2 after:left-0 after:w-full after:h-[1px] after:bg-gray-400 after:-rotate-45"
-                          : selected
-                          ? "border-white ring-2 ring-black scale-110"
-                          : "border-black/10 hover:border-black hover:scale-105"}`}
-                      style={{ backgroundColor: bgColor }}
-                      title={disabled ? `${c.label} (Tükendi)` : `${c.label} (Stok: ${c.stock})`}
-                    >
-                      <span className="sr-only">{c.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+        {/* SAĞ: Bilgiler */}
+        <div className="space-y-8">
+            
+            {/* Fiyat */}
+            <div>
+                <div className="text-3xl font-bold text-black">{tl(product.price)}</div>
+                {reviewSummary?.ratingCount > 0 && (
+                    <div className="flex items-center gap-1 text-sm mt-2 text-yellow-600">
+                        <Star size={16} fill="currentColor" /> 
+                        <span className="font-bold">{reviewSummary.averageRating.toFixed(1)}</span>
+                        <span className="text-black/50">({reviewSummary.ratingCount} değerlendirme)</span>
+                    </div>
+                )}
             </div>
-          )}
 
-          {/* beden seçici */}
-          {Array.isArray(product.sizes) && product.sizes.length > 0 && (
-            <div className="mt-6">
-              <div className="text-sm font-medium mb-2">Beden</div>
-              <div className="grid grid-cols-5 gap-2 max-w-sm">
-                {product.sizes.map((s) => {
-                  const disabled = Number(s.stock) <= 0;
-                  const selected = selectedSizeId === s.id;
-                  return (
-                    <button
-                      key={s.id ?? s.label}
-                      type="button"
-                      disabled={disabled}
-                      onClick={() => !disabled && setSelectedSizeId(s.id)}
-                      className={`h-10 rounded-md border text-sm transition-colors
-                        ${disabled
-                          ? "border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed decoration-slice line-through"
-                          : selected
-                          ? "border-black bg-black text-white"
-                          : "border-black/20 text-black hover:border-black hover:bg-gray-50"}`}
-                      title={disabled ? "Tükendi" : `Stok: ${s.stock}`}
-                    >
-                      {s.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="mt-2 text-xs text-black/60">
-                Toplam stok: <b>{Number(product.stock ?? 0)}</b>
-              </div>
+            {/* ANA ÜRÜN SEÇENEKLERİ */}
+            <div className="space-y-6 p-6 bg-white border border-beige/40 rounded-xl">
+                {/* Renk */}
+                {product.colors?.length > 0 && (
+                    <div>
+                        <div className="text-sm font-bold uppercase tracking-wider mb-3">Renk</div>
+                        <div className="flex gap-2">
+                            {product.colors.map(c => (
+                                <button
+                                    key={c.id}
+                                    onClick={() => setSelectedColorId(c.id)}
+                                    className={`w-8 h-8 rounded-full border ${selectedColorId === c.id ? "ring-2 ring-black ring-offset-2" : "border-black/10"}`}
+                                    style={{ backgroundColor: getColorHex(c.label) }}
+                                    title={c.label}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {/* Beden */}
+                {product.sizes?.length > 0 && (
+                    <div>
+                        <div className="text-sm font-bold uppercase tracking-wider mb-3">Beden</div>
+                        <div className="flex gap-2">
+                            {product.sizes.map(s => (
+                                <button
+                                    key={s.id}
+                                    onClick={() => setSelectedSizeId(s.id)}
+                                    disabled={s.stock <= 0}
+                                    className={`h-10 min-w-[40px] px-3 border rounded text-sm font-medium transition-colors
+                                        ${s.stock <= 0 ? "opacity-40 cursor-not-allowed bg-gray-100 decoration-line-through" : 
+                                          selectedSizeId === s.id ? "bg-black text-white border-black" : "hover:border-black text-black"}
+                                    `}
+                                >
+                                    {s.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
-          )}
 
-          {reviewSummary && reviewSummary.ratingCount > 0 && (
-            <div className="flex items-center gap-1 text-sm mt-4">
-              <Star size={18} className="fill-yellow-400 stroke-yellow-400" />
-              <span className="font-medium">
-                {reviewSummary.averageRating.toFixed(1)}
-              </span>
-              <span className="text-black/60">
-                ({reviewSummary.ratingCount} değerlendirme)
-              </span>
-            </div>
-          )}
+            {/* --- KOMBİNİ TAMAMLA (EĞER VARSA) --- */}
+            {compProduct && (
+                <div className={`p-6 rounded-xl border-2 transition-all duration-300 ${addComp ? "border-gold bg-yellow-50/30" : "border-dashed border-gray-300 hover:border-gold/50"}`}>
+                    
+                    <div className="flex items-start gap-4">
+                        <div className="flex h-6 items-center">
+                            <input
+                                type="checkbox"
+                                id="comp-check"
+                                checked={addComp}
+                                onChange={(e) => setAddComp(e.target.checked)}
+                                className="h-5 w-5 rounded border-gray-300 text-gold focus:ring-gold"
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label htmlFor="comp-check" className="font-bold text-lg cursor-pointer select-none flex items-center gap-2">
+                                Kombini Tamamla
+                                <span className="text-sm font-normal text-gray-500 bg-white border px-2 py-0.5 rounded-full">
+                                    +{tl(compProduct.price)}
+                                </span>
+                            </label>
+                            
+                            <div className="flex gap-4 mt-3">
+                                {/* Küçük Görsel */}
+                                <div className="w-16 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                                    {compProduct.images?.[0]?.url && <img src={compProduct.images[0].url} className="w-full h-full object-cover" alt="" />}
+                                </div>
+                                
+                                <div>
+                                    <p className="font-medium text-sm">{compProduct.name}</p>
+                                    
+                                    {/* Kombin Ürün Seçenekleri (Sadece checkbox işaretliyse aktif) */}
+                                    {addComp && (
+                                        <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-2">
+                                            {/* Beden Seçimi */}
+                                            {compProduct.sizes?.length > 0 && (
+                                                <div className="flex gap-1 flex-wrap">
+                                                    {compProduct.sizes.map(s => (
+                                                        <button
+                                                            key={s.id}
+                                                            onClick={() => setCompSizeId(s.id)}
+                                                            className={`text-xs px-2 py-1 border rounded ${compSizeId === s.id ? "bg-black text-white border-black" : "bg-white"}`}
+                                                        >
+                                                            {s.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {/* Renk Seçimi */}
+                                            {compProduct.colors?.length > 0 && (
+                                                <div className="flex gap-1">
+                                                    {compProduct.colors.map(c => (
+                                                        <button
+                                                            key={c.id}
+                                                            onClick={() => setCompColorId(c.id)}
+                                                            className={`w-5 h-5 rounded-full border ${compColorId === c.id ? "ring-1 ring-black ring-offset-1" : ""}`}
+                                                            style={{ backgroundColor: getColorHex(c.label) }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-          {/* aksiyonlar */}
-          <div className="flex items-center gap-3 mt-7">
-            <button
-              type="button"
-              className="flex-1 flex items-center justify-center gap-2 bg-black text-white px-6 py-4 rounded-lg hover:bg-black/90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-bold tracking-wide uppercase"
-              disabled={
-                (product.sizes?.length > 0 && !selectedSizeId) ||
-                (product.colors?.length > 0 && !selectedColorId) ||
-                product.stock === 0
-              }
-              onClick={() => {
-                const sizeLabel =
-                  product.sizes?.find((s) => s.id === selectedSizeId)?.label || null;
-                const colorLabel =
-                  product.colors?.find((c) => c.id === selectedColorId)?.label || null;
+            {/* ALT BUTONLAR & TOPLAM FİYAT */}
+            <div className="pt-4 border-t border-gray-100">
+                <div className="flex justify-between items-end mb-4">
+                    <span className="text-sm text-gray-500">Toplam Tutar:</span>
+                    <span className="text-2xl font-bold text-black">{tl(totalPrice)}</span>
+                </div>
                 
-                const colorImage =
-                  (product.images || []).find((im) => im.colorId === selectedColorId)?.url ||
-                  hero;
-
-                addItem({
-                  productId: product.id,
-                  name: product.name,
-                  price: product.price,
-                  image: colorImage,
-                  sizeId: selectedSizeId,
-                  sizeLabel,
-                  colorId: selectedColorId,
-                  colorLabel,
-                  quantity: 1,
-                });
-
-                navigate("/sepet");
-              }}
-            >
-              <ShoppingBag size={20} />
-              <span>{product.stock === 0 ? "Tükendi" : "Sepete Ekle"}</span>
-            </button>
-
-            <FavoriteButton
-              productId={product.id}
-              initial={product.isFavorited}
-              className="w-14 h-14 border border-black/10 rounded-lg hover:border-black/30 text-black"
-            />
-          </div>
-
-          {/* açıklama */}
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <h3 className="text-sm font-bold uppercase tracking-wide mb-3">Ürün Açıklaması</h3>
-            <p className="text-black/70 leading-relaxed text-sm">
-              {product.description || "Bu ürün hakkında detaylı bilgi yakında."}
-            </p>
-          </div>
-
-          {/* Ürün detay/spec tablosu */}
-          {Array.isArray(product.attributes) && product.attributes.length > 0 && (
-            <div className="mt-6">
-              <div className="text-sm font-bold uppercase tracking-wide mb-3">Özellikler</div>
-              <div className="border rounded-xl overflow-hidden">
-                <table className="w-full text-sm">
-                  <tbody>
-                    {product.attributes.map((a, i) => (
-                      <tr key={i} className="odd:bg-gray-50 border-b last:border-0 border-gray-100">
-                        <td className="p-3 w-1/3 text-black/60 font-medium">{a.label}</td>
-                        <td className="p-3 text-black/80">{a.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                <div className="flex gap-4">
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={
+                            // Ana ürün seçimi zorunlu
+                            (product.sizes?.length > 0 && !selectedSizeId) ||
+                            (product.colors?.length > 0 && !selectedColorId) ||
+                            // Kombin seçiliyse onun da seçimi zorunlu
+                            (addComp && compProduct?.sizes?.length > 0 && !compSizeId) ||
+                            (addComp && compProduct?.colors?.length > 0 && !compColorId) ||
+                            product.stock === 0
+                        }
+                        className="flex-1 bg-black text-white h-14 rounded-xl font-bold tracking-wide hover:bg-gold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        <ShoppingBag size={20} />
+                        {addComp ? "İKİSİNİ DE SEPETE EKLE" : "SEPETE EKLE"}
+                    </button>
+                    <FavoriteButton
+                        productId={product.id}
+                        initial={product.isFavorited}
+                        className="w-14 h-14 border border-black/10 rounded-xl hover:border-black text-black"
+                    />
+                </div>
             </div>
-          )}
+
+            {/* Açıklama ve Özellikler */}
+            <div className="space-y-6 text-sm text-black/70 leading-relaxed">
+                <p>{product.description}</p>
+                {product.attributes?.length > 0 && (
+                    <div className="grid grid-cols-2 gap-y-2 border-t border-gray-100 pt-4">
+                        {product.attributes.map((a, i) => (
+                            <div key={i}><span className="font-bold text-black">{a.label}:</span> {a.value}</div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
         </div>
       </div>
 
