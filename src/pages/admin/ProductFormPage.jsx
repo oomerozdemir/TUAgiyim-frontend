@@ -8,6 +8,7 @@ export default function ProductFormPage() {
   const [busy, setBusy] = useState(false);
   const [allCats, setAllCats] = useState([]);
   const [selectedCatIds, setSelectedCatIds] = useState([]);
+   const [allProducts, setAllProducts] = useState([]); 
 
   const [form, setForm] = useState({
     name: "",
