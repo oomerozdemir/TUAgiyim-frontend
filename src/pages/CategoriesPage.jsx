@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import CategoryScroller from "../components/CategoryScroller";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
-import ProductCard from "../components/ProductCard"; // Kart yapısı için eklendi
+import ProductCard from "../components/ProductCard";
 import { ArrowRight } from "lucide-react";
 import SEO from "../components/Seo";
 
@@ -24,10 +24,19 @@ export default function CategoriesPage() {
 
   const { setItems: setBreadcrumb } = useBreadcrumbs();
 
+  // --- DÜZELTME BAŞLANGICI ---
+  // activeCatName tanımı YUKARI TAŞINDI
+  const activeCatName = useMemo(() => {
+    if (!cats || !activeSlug) return null;
+    return cats.find((c) => c.slug === activeSlug)?.name || activeSlug;
+  }, [cats, activeSlug]);
+
+  // Artık activeCatName tanımlı olduğu için burada güvenle kullanılabilir
   const pageTitle = activeSlug ? (activeCatName || activeSlug) : "Kategoriler";
   const pageDesc = activeSlug 
     ? `TUA Giyim ${activeCatName} koleksiyonunu keşfedin. En şık parçalar burada.`
     : "TUA Giyim tüm kategoriler. Elbise, Bluz, Ceket ve daha fazlası.";
+  // --- DÜZELTME BİTİŞİ ---
 
   // 1. Kategorileri Yükle
   useEffect(() => {
@@ -62,11 +71,6 @@ export default function CategoriesPage() {
   }, [activeSlug]);
 
   // 3. Breadcrumb Ayarı
-  const activeCatName = useMemo(() => {
-    if (!cats || !activeSlug) return null;
-    return cats.find((c) => c.slug === activeSlug)?.name || activeSlug;
-  }, [cats, activeSlug]);
-
   useEffect(() => {
     if (activeSlug) {
       setBreadcrumb([

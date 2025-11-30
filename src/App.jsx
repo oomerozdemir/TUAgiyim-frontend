@@ -160,4 +160,7 @@ seo çalışması
 kupon kodu
 
 favicon duzenlemesi
+
+urun detay duzenlemesi alt bilgi olarak
+
 */
