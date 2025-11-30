@@ -10,6 +10,30 @@ import SEO from "../components/Seo";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
+function SEO({ title, description, type = "website", image }) {
+  const siteTitle = "TUA Giyim";
+  const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+  const metaDesc = description || "Geleneksel zanaatı modern çizgilerle buluşturan TUA Giyim.";
+  const metaImage = image || "https://tuagiyim.com/images/yeniSezon.png";
+  
+  const metaUrl = typeof window !== "undefined" ? window.location.href : "";
+
+  return (
+    <Helmet>
+      <title>{fullTitle}</title>
+      <meta name="description" content={metaDesc} />
+      <link rel="canonical" href={metaUrl} />
+      <meta property="og:type" content={type} />
+      <meta property="og:title" content={fullTitle} />
+      <meta property="og:description" content={metaDesc} />
+      <meta property="og:image" content={metaImage} />
+      <meta property="og:url" content={metaUrl} />
+    </Helmet>
+  );
+}
+
+
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
