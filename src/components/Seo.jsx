@@ -6,6 +6,9 @@ export default function SEO({ title, description, type = "website", image, url }
   const metaDesc = description || "Geleneksel zanaatı modern çizgilerle buluşturan TUA Giyim ile tanışın. Ruhunuza hitap eden zarif tasarımlar.";
   const metaImage = image || "https://tuagiyim.com/images/yeniSezon.png"; 
 
+  const metaUrl = url || (typeof window !== "undefined" ? window.location.href : "https://tuagiyim.com");
+
+
   return (
     <Helmet>
       {/* Standart Meta Etiketleri */}
