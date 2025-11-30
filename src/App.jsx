@@ -157,5 +157,7 @@ iade ve degisim politikasi hakkinda konus
 
 seo çalışması
 
+kupon kodu
+
 favicon duzenlemesi
 */
