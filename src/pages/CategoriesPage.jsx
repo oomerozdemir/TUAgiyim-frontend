@@ -5,6 +5,7 @@ import CategoryScroller from "../components/CategoryScroller";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import ProductCard from "../components/ProductCard"; // Kart yapısı için eklendi
 import { ArrowRight } from "lucide-react";
+import SEO from "../components/Seo";
 
 const tl = (n) =>
   new Intl.NumberFormat("tr-TR", {
@@ -22,6 +23,11 @@ export default function CategoriesPage() {
   const activeSlug = slug || activeQuery || "";
 
   const { setItems: setBreadcrumb } = useBreadcrumbs();
+
+  const pageTitle = activeSlug ? (activeCatName || activeSlug) : "Kategoriler";
+  const pageDesc = activeSlug 
+    ? `TUA Giyim ${activeCatName} koleksiyonunu keşfedin. En şık parçalar burada.`
+    : "TUA Giyim tüm kategoriler. Elbise, Bluz, Ceket ve daha fazlası.";
 
   // 1. Kategorileri Yükle
   useEffect(() => {
@@ -91,6 +97,9 @@ export default function CategoriesPage() {
   }
 
   return (
+    <>
+      <SEO title={pageTitle} description={pageDesc} />
+    
     <section className="bg-cream min-h-screen pb-20 pt-8">
       <div className="max-w-[1600px] mx-auto px-6">
         
@@ -198,5 +207,6 @@ export default function CategoriesPage() {
         )}
       </div>
     </section>
+        </>
   );
 }

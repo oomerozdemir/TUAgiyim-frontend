@@ -155,8 +155,6 @@ değişim/iade sistemini kur
 
 iade ve degisim politikasi hakkinda konus
 
-sepete eklerken beden ve renk secimi yapmadan ekleyemiyolar ya bunu gosterelim kullaniciya neden ekleyemedikleri konusunda kafa karisikligi olmasin
-
 seo çalışması
 
 favicon duzenlemesi

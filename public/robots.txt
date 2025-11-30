@@ -1,0 +1,13 @@
+
+User-agent: *
+Allow: /
+
+
+Disallow: /admin/
+Disallow: /hesabim/
+Disallow: /sepet/
+Disallow: /odeme/
+Disallow: /siparis-basarili/
+
+
+Sitemap: https://www.google.com/search?q=https://tuagiyim.com/sitemap.xml

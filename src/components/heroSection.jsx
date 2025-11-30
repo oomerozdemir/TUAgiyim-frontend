@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, Sparkles, ChevronDown, Star, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SEO from "./Seo";
 
 export default function EnhancedHeroSection() {
   const [loaded, setLoaded] = useState(false);
@@ -47,6 +48,11 @@ export default function EnhancedHeroSection() {
   };
 
   return (
+    <>
+       <SEO 
+        title="Modern Kadın Giyim & Tasarım Elbiseler" 
+        description="TUA Giyim ile stilinizi keşfedin. En yeni sezon kadın giyim ürünleri, elbiseler ve takımlar."
+      />
     <section 
       ref={sectionRef}
       // ARKA PLAN: Turuncumsu sarı yerine çok açık krem/taş rengi geçişler
@@ -302,5 +308,7 @@ export default function EnhancedHeroSection() {
         }
       `}</style>
     </section>
+    </>
+
   );
 }

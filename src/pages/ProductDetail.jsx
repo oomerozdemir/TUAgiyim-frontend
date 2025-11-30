@@ -6,6 +6,7 @@ import FavoriteButton from "../components/FavoriteButton";
 import CategoryScroller from "../components/CategoryScroller";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useCart } from "../context/CartContext";
+import SEO from "../components/Seo";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
@@ -265,6 +266,14 @@ export default function ProductDetail() {
 
 
   return (
+    <>
+      <SEO 
+        title={product.name} 
+        description={product.description || `${product.name} modelini inceleyin ve hemen satın alın.`}
+        image={product.images?.[0]?.url}
+        type="product"
+      />
+    
     <section className="max-w-7xl mx-auto px-4 py-10">
       {/* başlık + kategori scroller */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -581,5 +590,6 @@ export default function ProductDetail() {
       </section>
 
     </section>
+    </>
   );
 }
