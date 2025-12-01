@@ -34,7 +34,8 @@ export default function EnhancedNavbar() {
   const cartCount = items?.length || 0;
 
   useEffect(() => {
-    api.get("/api/categories")
+    // ?tree=true parametresi ile kategorileri ana-alt ilişkisine göre çekiyoruz
+    api.get("/api/categories?tree=true")
       .then((res) => setCategories(res.data || []))
       .catch(() => setCategories([]));
   }, []);
@@ -114,27 +115,41 @@ export default function EnhancedNavbar() {
 
                         <div className="absolute top-full left-0 pt-6 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-50">
                             <div className="bg-[#FAF9F6] rounded-xl shadow-xl border border-[#E0DCD5] overflow-hidden py-3 ring-1 ring-black/5">
-                                <div className="px-5 py-3 border-b border-[#E0DCD5] mb-2">
-                                    <p className="text-[10px] font-bold text-[#8C7B62] uppercase tracking-widest">
-                                        Koleksiyonlar
-                                    </p>
-                                </div>
+                                
+                                {/* --- KATEGORİ LİSTESİ (Hiyerarşik) --- */}
                                 {categories.length > 0 ? (
-                                    <div className="space-y-1 px-2">
-                                        {categories.map((cat) => (
-                                            <Link 
-                                                key={cat.id}
-                                                to={`/kategori/${cat.slug}`}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-[#5C5346] hover:bg-[#F0EBE0] hover:text-[#2D2D2D] rounded-lg transition-all duration-300 hover:pl-6 flex items-center justify-between"
-                                            >
-                                                <span>{cat.name}</span>
-                                                <ChevronDown size={14} className="-rotate-90 opacity-0 group-hover:opacity-50 transition-all text-[#8C7B62]" />
-                                            </Link>
+                                    <div className="space-y-4 px-4 py-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                        {categories.map((parentCat) => (
+                                            <div key={parentCat.id} className="group/sub">
+                                                {/* Ana Kategori Başlığı (Örn: YENİ SEZON) */}
+                                                <Link 
+                                                    to={`/kategori/${parentCat.slug}`}
+                                                    className="block font-bold text-[#8C7B62] uppercase tracking-wider text-xs mb-2 hover:text-black transition-colors"
+                                                >
+                                                    {parentCat.name}
+                                                </Link>
+                                                
+                                                {/* Alt Kategoriler (Örn: Elbise, Etek) */}
+                                                {parentCat.children && parentCat.children.length > 0 && (
+                                                    <div className="pl-2 space-y-1 border-l border-[#E0DCD5]">
+                                                        {parentCat.children.map(child => (
+                                                            <Link 
+                                                                key={child.id}
+                                                                to={`/kategori/${child.slug}`}
+                                                                className="block text-sm text-[#5C5346] hover:text-[#2D2D2D] py-1 transition-colors hover:translate-x-1 duration-200"
+                                                            >
+                                                                {child.name}
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         ))}
                                     </div>
                                 ) : (
                                     <div className="px-4 py-6 text-sm text-gray-400 text-center">Yükleniyor...</div>
                                 )}
+                                
                                 <div className="mt-2 pt-3 px-4 border-t border-[#E0DCD5]">
                                     <Link to="/kategoriler" className="w-full block py-2.5 text-xs font-bold text-center text-white bg-[#2D2D2D] hover:bg-[#8C7B62] rounded-lg transition-all duration-300">
                                         TÜMÜNÜ GÖR
@@ -228,11 +243,9 @@ export default function EnhancedNavbar() {
         </button>
       </nav>
 
-      {/* MOBİL MENÜ (Overlay) - DÜZELTİLDİ */}
-      {/* 'fixed' pozisyonu ve 'dvh' kullanımı ile tam ekran kapsama */}
+      {/* MOBİL MENÜ (Overlay) */}
       {open && (
         <div className="md:hidden fixed top-24 left-0 w-full h-[calc(100dvh-6rem)] bg-[#FAF9F6] border-t border-[#E0DCD5] shadow-2xl overflow-y-auto z-50 animate-in slide-in-from-top duration-300">
-          {/* min-h-full ve pb-32 ile içeriğin kaydırılabilir olması ve alt kısmın görünürlüğü garanti altına alındı */}
           <div className="p-6 flex flex-col min-h-full pb-32">
             
             {/* Ana Linkler */}
@@ -247,17 +260,34 @@ export default function EnhancedNavbar() {
                         {l.label}
                     </Link>
                     
+                    {/* MOBİL KATEGORİ LİSTESİ */}
                     {l.id === 'kategoriler' && categories.length > 0 && (
-                        <div className="pl-6 mt-1 space-y-1 border-l border-[#E0DCD5] ml-4">
-                            {categories.map(cat => (
-                                <Link 
-                                    key={cat.id}
-                                    to={`/kategori/${cat.slug}`}
-                                    className="block w-full text-left text-sm text-[#5C5346] hover:text-[#2D2D2D] py-2 px-3 rounded-lg hover:bg-[#F5F2EB] transition-all"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    {cat.name}
-                                </Link>
+                        <div className="pl-6 mt-1 space-y-4 border-l border-[#E0DCD5] ml-4 pt-2">
+                            {categories.map(parentCat => (
+                                <div key={parentCat.id}>
+                                    <Link 
+                                        to={`/kategori/${parentCat.slug}`}
+                                        className="block text-sm font-bold text-[#8C7B62] uppercase tracking-wider mb-2"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        {parentCat.name}
+                                    </Link>
+                                    
+                                    {parentCat.children && parentCat.children.length > 0 && (
+                                        <div className="pl-3 space-y-2 border-l border-[#E0DCD5]/50">
+                                            {parentCat.children.map(child => (
+                                                <Link 
+                                                    key={child.id}
+                                                    to={`/kategori/${child.slug}`}
+                                                    className="block w-full text-left text-sm text-[#5C5346] hover:text-[#2D2D2D] transition-all"
+                                                    onClick={() => setOpen(false)}
+                                                >
+                                                    {child.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     )}
@@ -267,7 +297,7 @@ export default function EnhancedNavbar() {
             
             <div className="h-px bg-[#E0DCD5] my-6" />
             
-            {/* Kullanıcı Paneli (Mobil) - Alt kısma itildi (mt-auto) */}
+            {/* Kullanıcı Paneli (Mobil) */}
             <div className="mt-auto space-y-4">
                 {user ? (
                   <div className="bg-[#F5F2EB] p-5 rounded-2xl border border-[#E0DCD5]">
