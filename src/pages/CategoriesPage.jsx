@@ -6,6 +6,7 @@ import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import ProductCard from "../components/ProductCard";
 import { ArrowRight } from "lucide-react";
 import SEO from "../components/Seo";
+import Footer from "../components/Footer";
 
 const tl = (n) =>
   new Intl.NumberFormat("tr-TR", {
@@ -211,6 +212,7 @@ export default function CategoriesPage() {
         )}
       </div>
     </section>
+    <Footer />
         </>
   );
 }

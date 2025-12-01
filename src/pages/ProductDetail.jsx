@@ -7,6 +7,7 @@ import FavoriteButton from "../components/FavoriteButton";
 import CategoryScroller from "../components/CategoryScroller";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useCart } from "../context/CartContext";
+import Footer from "../components/Footer";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
@@ -409,6 +410,7 @@ export default function ProductDetail() {
             )}
         </section>
       </section>
+      <Footer />
     </>
   );
 }
