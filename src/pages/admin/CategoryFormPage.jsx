@@ -14,7 +14,8 @@ export default function CategoryFormPage() {
     slug: "",
     imageUrl: "",
     publicId: "",
-    parentId: "", // Yeni: Üst kategori ID'si
+    parentId: "",
+    isFeatured: false,
   });
   const [busy, setBusy] = useState(false);
   const editMode = Boolean(id);
@@ -42,7 +43,8 @@ export default function CategoryFormPage() {
           slug: data.slug ?? "",
           imageUrl: data.imageUrl ?? "",
           publicId: data.publicId ?? "",
-          parentId: data.parentId ?? "", // Mevcut parent varsa getir
+          parentId: data.parentId ?? "",
+          isFeatured: data.isFeatured ?? false,
         });
       } catch (e) {
         alert("Kategori yüklenemedi");
@@ -165,6 +167,20 @@ export default function CategoryFormPage() {
             required
             />
         </div>
+
+        {/* Menüde Göster Checkbox */}
+<label className="flex items-center gap-2 border p-3 rounded-lg bg-white cursor-pointer">
+  <input
+    type="checkbox"
+    className="w-5 h-5 accent-gold"
+    checked={form.isFeatured}
+    onChange={(e) => setForm(f => ({ ...f, isFeatured: e.target.checked }))}
+  />
+  <div>
+    <span className="font-medium text-sm text-gray-700">Menüde Göster</span>
+    <p className="text-xs text-gray-500">İşaretlenirse Navbar'da ana başlık olarak görünür.</p>
+  </div>
+</label>
 
         {/* Görsel yükleme alanı */}
         <div className="border rounded-xl p-3 bg-white">

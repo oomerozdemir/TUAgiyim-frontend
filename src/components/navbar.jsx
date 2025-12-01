@@ -6,21 +6,15 @@ import { User, Heart, ShoppingBag, Menu, X, LogOut, UserCircle, Settings, Chevro
 import api from "../lib/api";
 
 const LOGO_URL = "/images/logo2.png"; 
-
-// === RENK PALETİ CONSTANTS ===
 const ACCENT_COLOR_TEXT = "text-[#A39075]"; 
-
-const LINKS = [
-  { to: "/kategoriler", label: "Kategoriler", id: "kategoriler" },
-  { to: "/urunler", label: "Tüm Ürünler", id: "ürünler" },
-  { to: "/hakkimizda", label: "Hakkımızda", id: "hakkimizda" },
-];
 
 export default function EnhancedNavbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [categories, setCategories] = useState([]);
+  
+  // Öne çıkarılan (Menüde gösterilecek) kategorileri tutacak state
+  const [featuredCategories, setFeaturedCategories] = useState([]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,13 +27,20 @@ export default function EnhancedNavbar() {
   const isHomePage = location.pathname === "/";
   const cartCount = items?.length || 0;
 
+  // Kategorileri Çekme ve Filtreleme
   useEffect(() => {
-    // ?tree=true parametresi ile kategorileri ana-alt ilişkisine göre çekiyoruz
+    // Tüm ağacı çekiyoruz
     api.get("/api/categories?tree=true")
-      .then((res) => setCategories(res.data || []))
-      .catch(() => setCategories([]));
+      .then((res) => {
+        const all = Array.isArray(res.data) ? res.data : [];
+        // Sadece parentId'si olmayan (Ana Kategori) ve isFeatured=true olanları alıyoruz
+        const menuItems = all.filter(c => c.isFeatured === true && c.parentId === null);
+        setFeaturedCategories(menuItems);
+      })
+      .catch(() => setFeaturedCategories([]));
   }, []);
 
+  // Scroll Dinleyicisi
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     onScroll();
@@ -47,6 +48,7 @@ export default function EnhancedNavbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [location.pathname]);
 
+  // Mobil Menü Açılınca Scroll Kilitleme
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -99,78 +101,49 @@ export default function EnhancedNavbar() {
     <header className={`${positionClass} ${navBaseClasses} ${appearanceClasses}`}>
       <nav className="mx-auto max-w-[1600px] px-6 h-24 flex items-center">
         
-        {/* SOL BÖLÜM (Desktop) */}
+        {/* SOL BÖLÜM (Desktop): Öne Çıkan Kategoriler + Sabit Linkler */}
         <div className="hidden md:flex flex-1 items-center justify-start gap-8">
-          {LINKS.map((l) => {
-            if (l.id === 'kategoriler') {
-                return (
-                    <div key={l.id} className="relative group h-full flex items-center">
-                        <Link 
-                            to={l.to} 
-                            className={`flex items-center gap-1 ${getLinkClass(location.pathname.startsWith("/kategori"))}`}
-                        >
-                            {l.label}
-                            <ChevronDown size={14} className={`transition-all duration-300 group-hover:rotate-180 opacity-60`} />
-                        </Link>
+          
+          {/* Öne Çıkan Kategoriler Döngüsü */}
+          {featuredCategories.map((cat) => (
+            <div key={cat.id} className="relative group h-full flex items-center">
+              <Link 
+                to={`/kategori/${cat.slug}`}
+                className={`flex items-center gap-1 ${getLinkClass(location.pathname.startsWith(`/kategori/${cat.slug}`))}`}
+              >
+                {cat.name}
+                {/* Alt kategorisi varsa ok işareti */}
+                {cat.children && cat.children.length > 0 && (
+                   <ChevronDown size={14} className={`transition-all duration-300 group-hover:rotate-180 opacity-60`} />
+                )}
+              </Link>
 
-                        <div className="absolute top-full left-0 pt-6 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-50">
-                            <div className="bg-[#FAF9F6] rounded-xl shadow-xl border border-[#E0DCD5] overflow-hidden py-3 ring-1 ring-black/5">
-                                
-                                {/* --- KATEGORİ LİSTESİ (Hiyerarşik) --- */}
-                                {categories.length > 0 ? (
-                                    <div className="space-y-4 px-4 py-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                                        {categories.map((parentCat) => (
-                                            <div key={parentCat.id} className="group/sub">
-                                                {/* Ana Kategori Başlığı (Örn: YENİ SEZON) */}
-                                                <Link 
-                                                    to={`/kategori/${parentCat.slug}`}
-                                                    className="block font-bold text-[#8C7B62] uppercase tracking-wider text-xs mb-2 hover:text-black transition-colors"
-                                                >
-                                                    {parentCat.name}
-                                                </Link>
-                                                
-                                                {/* Alt Kategoriler (Örn: Elbise, Etek) */}
-                                                {parentCat.children && parentCat.children.length > 0 && (
-                                                    <div className="pl-2 space-y-1 border-l border-[#E0DCD5]">
-                                                        {parentCat.children.map(child => (
-                                                            <Link 
-                                                                key={child.id}
-                                                                to={`/kategori/${child.slug}`}
-                                                                className="block text-sm text-[#5C5346] hover:text-[#2D2D2D] py-1 transition-colors hover:translate-x-1 duration-200"
-                                                            >
-                                                                {child.name}
-                                                            </Link>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="px-4 py-6 text-sm text-gray-400 text-center">Yükleniyor...</div>
-                                )}
-                                
-                                <div className="mt-2 pt-3 px-4 border-t border-[#E0DCD5]">
-                                    <Link to="/kategoriler" className="w-full block py-2.5 text-xs font-bold text-center text-white bg-[#2D2D2D] hover:bg-[#8C7B62] rounded-lg transition-all duration-300">
-                                        TÜMÜNÜ GÖR
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
-            return (
-                <Link 
-                    key={l.to}
-                    to={l.to}
-                    className={getLinkClass(location.pathname === l.to)}
-                >
-                    {l.label}
-                    <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-[#A39075] group-hover:w-full transition-all duration-300" />
-                </Link>
-            );
-          })}
+              {/* Alt Kategori Dropdown */}
+              {cat.children && cat.children.length > 0 && (
+                <div className="absolute top-full left-0 pt-6 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 z-50">
+                  <div className="bg-[#FAF9F6] rounded-xl shadow-xl border border-[#E0DCD5] overflow-hidden py-2 ring-1 ring-black/5">
+                    {cat.children.map((sub) => (
+                      <Link 
+                        key={sub.id}
+                        to={`/kategori/${sub.slug}`}
+                        className="block px-4 py-2.5 text-sm text-[#5C5346] hover:bg-[#F0EBE0] hover:text-[#2D2D2D] transition-colors"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Sabit Linkler */}
+          <Link to="/urunler" className={getLinkClass(location.pathname === "/urunler")}>
+            Tüm Ürünler
+          </Link>
+          <Link to="/hakkimizda" className={getLinkClass(location.pathname === "/hakkimizda")}>
+            Hakkımızda
+          </Link>
         </div>
 
         {/* ORTA BÖLÜM: Logo */}
@@ -250,49 +223,51 @@ export default function EnhancedNavbar() {
             
             {/* Ana Linkler */}
             <div className="flex flex-col gap-2">
-              {LINKS.map((l) => (
-                <div key={l.to}>
+              
+              {/* Dinamik Kategoriler (Mobil) */}
+              {featuredCategories.map((cat) => (
+                <div key={cat.id}>
                     <Link 
-                        to={l.to}
-                        className={`w-full text-left text-lg font-medium py-3 px-4 rounded-xl transition-all duration-300 ${location.pathname === l.to ? "text-[#8C7B62] bg-[#F5F2EB]" : "text-[#2D2D2D] hover:bg-[#F5F2EB]"}`}
+                        to={`/kategori/${cat.slug}`}
+                        className="w-full flex items-center justify-between text-left text-lg font-medium py-3 px-4 rounded-xl text-[#2D2D2D] hover:bg-[#F5F2EB] transition-colors"
                         onClick={() => setOpen(false)}
                     >
-                        {l.label}
+                        {cat.name}
                     </Link>
                     
-                    {/* MOBİL KATEGORİ LİSTESİ */}
-                    {l.id === 'kategoriler' && categories.length > 0 && (
-                        <div className="pl-6 mt-1 space-y-4 border-l border-[#E0DCD5] ml-4 pt-2">
-                            {categories.map(parentCat => (
-                                <div key={parentCat.id}>
-                                    <Link 
-                                        to={`/kategori/${parentCat.slug}`}
-                                        className="block text-sm font-bold text-[#8C7B62] uppercase tracking-wider mb-2"
-                                        onClick={() => setOpen(false)}
-                                    >
-                                        {parentCat.name}
-                                    </Link>
-                                    
-                                    {parentCat.children && parentCat.children.length > 0 && (
-                                        <div className="pl-3 space-y-2 border-l border-[#E0DCD5]/50">
-                                            {parentCat.children.map(child => (
-                                                <Link 
-                                                    key={child.id}
-                                                    to={`/kategori/${child.slug}`}
-                                                    className="block w-full text-left text-sm text-[#5C5346] hover:text-[#2D2D2D] transition-all"
-                                                    onClick={() => setOpen(false)}
-                                                >
-                                                    {child.name}
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                    {/* Alt Kategoriler (Varsa - Girintili Liste) */}
+                    {cat.children && cat.children.length > 0 && (
+                        <div className="pl-6 mt-1 space-y-1 border-l border-[#E0DCD5] ml-4 pt-1 mb-2">
+                            {cat.children.map(sub => (
+                                <Link 
+                                    key={sub.id}
+                                    to={`/kategori/${sub.slug}`}
+                                    className="block w-full text-left text-sm text-[#5C5346] hover:text-[#2D2D2D] py-2 px-3 rounded-lg hover:bg-[#F5F2EB] transition-all"
+                                    onClick={() => setOpen(false)}
+                                >
+                                    {sub.name}
+                                </Link>
                             ))}
                         </div>
                     )}
                 </div>
               ))}
+
+              {/* Sabit Linkler */}
+              <Link 
+                  to="/urunler"
+                  className="w-full text-left text-lg font-medium py-3 px-4 rounded-xl text-[#2D2D2D] hover:bg-[#F5F2EB] transition-colors"
+                  onClick={() => setOpen(false)}
+              >
+                  Tüm Ürünler
+              </Link>
+              <Link 
+                  to="/hakkimizda"
+                  className="w-full text-left text-lg font-medium py-3 px-4 rounded-xl text-[#2D2D2D] hover:bg-[#F5F2EB] transition-colors"
+                  onClick={() => setOpen(false)}
+              >
+                  Hakkımızda
+              </Link>
             </div>
             
             <div className="h-px bg-[#E0DCD5] my-6" />
