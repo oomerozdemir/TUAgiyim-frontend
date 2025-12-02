@@ -165,8 +165,5 @@ urun detay duzenlemesi alt bilgi olarak
 
 ürünlerin etiket fiyatı silik indirimli fiyatı belirgin yapalım ve bunu admın panelinden ayarlayabilelim
 
-ana kategori grubu oluşturalım bunlarında alt kategorileri olsun
-
-yeni sezon, kampanyalı ürünler gibi
 
 */

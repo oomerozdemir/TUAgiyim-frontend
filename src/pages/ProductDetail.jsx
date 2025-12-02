@@ -7,7 +7,6 @@ import FavoriteButton from "../components/FavoriteButton";
 import CategoryScroller from "../components/CategoryScroller";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useCart } from "../context/CartContext";
-import Footer from "../components/Footer";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
@@ -110,7 +109,7 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!product) return;
     try {
-      const entry = { id: product.id, name: product.name, price: product.price, images: product.images, stock: product.stock, isFavorited: product.isFavorited };
+      const entry = { id: product.id, name: product.name, price: product.price, originalPrice: product.originalPrice, images: product.images, stock: product.stock, isFavorited: product.isFavorited };
       let existing = JSON.parse(localStorage.getItem("lastViewedProducts") || "[]");
       existing = existing.filter((p) => p.id !== entry.id);
       existing.unshift(entry);
@@ -234,6 +233,12 @@ export default function ProductDetail() {
   const isCompColorMissing = showError && addComp && compProduct?.colors?.length > 0 && !compColorId;
   const isCompSizeMissing = showError && addComp && compProduct?.sizes?.length > 0 && !compSizeId;
 
+  // İndirim Oranı ve Durumu
+  const hasDiscount = product?.originalPrice && Number(product.originalPrice) > Number(product.price);
+  const discountRate = hasDiscount 
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+    : 0;
+
   return (
     <>
       <SEO 
@@ -256,6 +261,14 @@ export default function ProductDetail() {
              <div>
                 <div className="aspect-[3/4] bg-white border border-black/10 rounded-lg overflow-hidden flex items-center justify-center relative mb-4">
                     {product.stock === 0 && <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center"><span className="bg-black text-white text-lg px-4 py-2 font-bold tracking-widest">TÜKENDİ</span></div>}
+                    
+                    {/* Detay Sayfasında İndirim Rozeti */}
+                    {hasDiscount && product.stock > 0 && (
+                        <div className="absolute top-4 left-4 z-20 bg-red-600 text-white text-sm font-bold px-3 py-1.5 rounded shadow-sm">
+                            %{discountRate} İNDİRİM
+                        </div>
+                    )}
+
                     {hero ? <img src={hero} alt={product.name} className="w-full h-full object-cover" /> : <div className="text-black/50 text-sm">Görsel yok</div>}
                 </div>
                 {gallery?.length > 1 && (
@@ -272,7 +285,19 @@ export default function ProductDetail() {
              {/* BİLGİLER */}
              <div className="space-y-8">
                  <div>
-                    <div className="text-3xl font-bold text-black">{tl(product.price)}</div>
+                    {hasDiscount ? (
+                        <div className="flex items-end gap-3 mb-2">
+                            <div className="text-3xl md:text-4xl font-bold text-red-600">
+                                {tl(product.price)}
+                            </div>
+                            <div className="text-lg md:text-xl text-gray-400 line-through mb-1">
+                                {tl(product.originalPrice)}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-3xl font-bold text-black">{tl(product.price)}</div>
+                    )}
+
                     {reviewSummary?.ratingCount > 0 && (
                         <div className="flex items-center gap-1 text-sm mt-2 text-yellow-600">
                             <Star size={16} fill="currentColor" /> <span className="font-bold">{reviewSummary.averageRating.toFixed(1)}</span> <span className="text-black/50">({reviewSummary.ratingCount} değerlendirme)</span>
@@ -410,7 +435,6 @@ export default function ProductDetail() {
             )}
         </section>
       </section>
-      <Footer />
     </>
   );
 }

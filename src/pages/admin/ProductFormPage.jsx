@@ -14,12 +14,13 @@ export default function ProductFormPage() {
     name: "",
     slug: "",
     price: "",
+    originalPrice: "",
     description: "",
-    images: [], // Eski (genel) resimler varsa burada tutulur ama arayüzde gösterilmez/eklenmez
+    images: [], 
     featured: false,
-    sizes: [], // [{label, stock}]
-    colors: [], // [{label, stock, images:[{url, publicId}]}]
-    attributes: [], // [{label, value}]
+    sizes: [], 
+    colors: [], 
+    attributes: [], 
     complementaryId: ""
   });
 
@@ -58,6 +59,7 @@ export default function ProductFormPage() {
         name: data.name ?? "",
         slug: data.slug ?? "",
         price: data.price ?? "",
+        originalPrice: data.originalPrice ?? "",
         description: data.description ?? "",
         // Genel görselleri state'e alıyoruz ki kaydederken silinmesinler (eski veri koruması)
         images: imagesFromApi
@@ -192,6 +194,7 @@ export default function ProductFormPage() {
         slug: form.slug.trim(),
         description: form.description?.trim() || null,
         price: Number(form.price),
+        originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
         featured: !!form.featured,
         categoryIds: selectedCatIds,
         images: [...form.images, ...colorImages],
@@ -235,15 +238,33 @@ export default function ProductFormPage() {
           onChange={(e) => setForm((s) => ({ ...s, slug: e.target.value }))}
           required
         />
-        <input
-          type="number"
-          step="0.01"
-          className="border rounded px-3 py-2"
-          placeholder="Fiyat"
-          value={form.price}
-          onChange={(e) => setForm((s) => ({ ...s, price: e.target.value }))}
-          required
-        />
+        {/* FİYAT ALANLARI YANYANA */}
+        <div className="grid grid-cols-2 gap-4">
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Satış Fiyatı (TL)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="Örn: 450"
+                    value={form.price}
+                    onChange={(e) => setForm((s) => ({ ...s, price: e.target.value }))}
+                    required
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Etiket Fiyatı (Opsiyonel)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="Örn: 600 (Üstü çizilecek)"
+                    value={form.originalPrice}
+                    onChange={(e) => setForm((s) => ({ ...s, originalPrice: e.target.value }))}
+                />
+                <p className="text-xs text-gray-500 mt-1">Eğer girilirse, bu fiyatın üstü çizilip indirimli gibi gösterilir.</p>
+            </div>
+        </div>
 
         <textarea
           rows={4}
