@@ -141,9 +141,7 @@ export default function EnhancedNavbar() {
           <Link to="/urunler" className={getLinkClass(location.pathname === "/urunler")}>
             Tüm Ürünler
           </Link>
-          <Link to="/hakkimizda" className={getLinkClass(location.pathname === "/hakkimizda")}>
-            Hakkımızda
-          </Link>
+      
         </div>
 
         {/* ORTA BÖLÜM: Logo */}
