@@ -4,13 +4,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import api from "../lib/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 export default function FavoriteButton({ productId, initial, className = "" }) {
   const [fav, setFav] = useState(Boolean(initial));
   const [loading, setLoading] = useState(false);
-  const [burst, setBurst] = useState(0); // animasyonu tetiklemek için sayaç
+  const [burst, setBurst] = useState(0); 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (initial !== undefined) return;
@@ -28,36 +30,36 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
     if (initial !== undefined) setFav(Boolean(initial));
   }, [initial]);
 
-  // 8 parçalık konfeti için açıları hazırla (0-360°)
   const shards = useMemo(() => Array.from({ length: 8 }, (_, i) => i * (360 / 8)), []);
+const toggle = async (e) => { 
+    e.preventDefault();
+    e.stopPropagation();
 
-  const toggle = async (e) => {
-    e?.preventDefault?.(); e?.stopPropagation?.();
     if (loading) return;
-  
-    const hasToken =
-      user?.accessToken || user?.token || localStorage.getItem("token");
-    if (!hasToken) {
-      navigate("/giris-yap");
-     return;
+    
+    if (!auth?.user) {
+        addToast("Favorilere eklemek için lütfen giriş yapınız.", "error"); 
+        return;
     }
 
-
     setLoading(true);
-    const prev = fav;
-    setFav(!prev);                 // optimistic
-    if (!prev) setBurst((n) => n + 1); // sadece eklenirken patlat
+    const previousState = liked;
+    setLiked(!previousState);
 
     try {
-      const { data } = await api.post(`/api/favorites/${productId}`);
-      if (typeof data?.favorited === "boolean") {
-        setFav(data.favorited);
-        if (data.favorited) setBurst((n) => n + 1); // backend'e göre de tetikle
+      if (previousState) {
+        await api.delete(`/api/favorites/${productId}`);
+        addToast("Ürün favorilerden kaldırıldı.", "info"); 
+      } else {
+        await api.post("/api/favorites", { productId });
+        addToast("Ürün favorilere eklendi.", "success"); 
       }
-    } catch (err) {
-      setFav(prev); // rollback
-      if (import.meta.env.DEV) console.error("Favori toggle hatası:", err);
-      alert(err?.response?.data?.message || "Favori işlemi başarısız oldu.");
+    } catch (error) {
+      setLiked(previousState);
+      console.error("Favori işlemi başarısız:", error);
+      
+      const msg = error.response?.data?.message || "İşlem sırasında bir hata oluştu.";
+      addToast(msg, "error"); 
     } finally {
       setLoading(false);
     }

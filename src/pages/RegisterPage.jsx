@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
+import { useToast } from "../context/ToastContext";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -11,24 +12,23 @@ export default function Register() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { setItems: setBreadcrumb } = useBreadcrumbs();
+  const { addToast } = useToast(); 
 
   useEffect(() => {
     setBreadcrumb([{ label: "Anasayfa", to: "/" }, { label: "Kayıt Ol" }]);
   }, [setBreadcrumb]);
 
-  const handleRegister = async (e) => {
+ const handleRegister = async (e) => {
     e.preventDefault();
     try {
       const base = import.meta.env.VITE_API_BASE;
 
-      // 🔥 Cookie’nin doğru set edilmesi için withCredentials: true
       const { data } = await axios.post(
         `${base}/api/auth/register`,
         { name, email, password },
         { withCredentials: true }
       );
 
-      // ✅ accessToken + refreshToken’ı localStorage’a kaydet
       if (data?.accessToken || data?.token) {
         localStorage.setItem("token", data.accessToken || data.token);
       }
@@ -36,7 +36,6 @@ export default function Register() {
         localStorage.setItem("rt", data.refreshToken);
       }
 
-      // AuthContext'e login bilgilerini ver
       login({
         id: data.id,
         name: data.name,
@@ -44,14 +43,16 @@ export default function Register() {
         accessToken: data.accessToken || data.token,
       });
 
-      // ✅ Anasayfaya yönlendir
+      addToast(`Aramıza hoş geldin, ${data.name}!`, "success");
+
       navigate("/", { replace: true });
     } catch (err) {
       console.error("Kayıt hatası:", err);
       const msg =
         err?.response?.data?.message ||
         "Kayıt başarısız. Bilgileri kontrol edin.";
-      alert(msg);
+      
+      addToast(msg, "error"); 
     }
   };
 

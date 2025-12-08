@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send, Instagram, Facebook, CheckCircle, AlertCircle } from "lucide-react";
 import api from "../lib/api"; 
+import { useToast } from "../context/ToastContext";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,26 +12,24 @@ export default function ContactPage() {
   });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null); 
+  const { addToast } = useToast();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setStatus(null);
-
+    setBusy(true);
     try {
-      await api.post("/api/contact", formData);
-      setStatus("success");
-      setFormData({ name: "", email: "", subject: "Genel Bilgi", message: "" }); // Formu temizle
-    } catch (error) {
-      console.error(error);
-      setStatus("error");
+      await api.post("/api/contact", form);
+      addToast("Mesajınız bize ulaştı. Teşekkürler!", "success"); // <--- Bildirim
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      addToast("Mesaj gönderilemedi. Lütfen tekrar deneyin.", "error");
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
 

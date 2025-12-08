@@ -3,6 +3,7 @@ import api from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useSearchParams, Link } from "react-router-dom"; // Link eklendi
 import { Package, Truck, CheckCircle, AlertCircle, Clock, MapPin, ChevronRight, Box, X, RotateCcw } from "lucide-react"; // İkonlar eklendi
+import { useToast } from "../context/ToastContext";
 
 const TabButton = ({ id, active, onClick, children }) => (
   <button
@@ -110,6 +111,9 @@ export default function AccountPage() {
   const [returnReason, setReturnReason] = useState("");
   const [returnItemsSelection, setReturnItemsSelection] = useState({}); 
   const [submittingReturn, setSubmittingReturn] = useState(false);
+
+const { addToast } = useToast();
+
 
   // Profil bilgisi
   useEffect(() => {
@@ -328,7 +332,7 @@ export default function AccountPage() {
         .map(([orderItemId, quantity]) => ({ orderItemId, quantity }));
 
     if (itemsPayload.length === 0) {
-        alert("Lütfen iade etmek istediğiniz ürünleri ve adetlerini seçiniz.");
+        addToast("Lütfen iade edilecek en az bir ürün seçiniz.", "error");
         return;
     }
 
@@ -339,12 +343,11 @@ export default function AccountPage() {
             items: itemsPayload,
             reason: returnReason
         });
-        alert("İade talebiniz başarıyla oluşturuldu.");
+        addToast("İade talebiniz başarıyla oluşturuldu.", "success");
         setReturnModalOpen(false);
         // İsterseniz siparişleri yeniden çekebilirsiniz ama durum hemen değişmeyebilir
     } catch (err) {
-        console.error(err);
-        alert(err?.response?.data?.message || "İade talebi oluşturulamadı.");
+        addToast("İade talebi oluşturulamadı: " + (err.response?.data?.message), "error");
     } finally {
         setSubmittingReturn(false);
     }

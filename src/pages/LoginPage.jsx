@@ -1,20 +1,17 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { useBreadcrumbs } from "../context/BreadcrumbContext";
+import { useToast } from "../context/ToastContext"; 
 
-export default function Login() {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const { setItems: setBreadcrumb } = useBreadcrumbs();
 
-  useEffect(() => {
-    setBreadcrumb([{ label: "Anasayfa", to: "/" }, { label: "Giriş Yap" }]);
-  }, [setBreadcrumb]);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const { addToast } = useToast(); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,20 +21,17 @@ export default function Login() {
     try {
       const base = import.meta.env.VITE_API_BASE;
 
-      // 1) LOGIN — cookie için withCredentials şart
       const { data } = await axios.post(
         `${base}/api/auth/login`,
         { email, password },
         { withCredentials: true }
       );
 
-      // 2) Tokenları kaydet (fallback: cookie çalışmasa bile)
       const accessToken = data?.accessToken || data?.token || "";
       const refreshToken = data?.refreshToken || "";
       if (accessToken) localStorage.setItem("token", accessToken);
       if (refreshToken) localStorage.setItem("rt", refreshToken);
 
-      // 3) AuthContext'e kullanıcıyı yaz
       login({
         id: data?.id,
         name: data?.name,
@@ -45,22 +39,18 @@ export default function Login() {
         accessToken,
       });
 
-      // 4) HEMEN yönlendir (profil beklenmez)
+      // --- BAŞARILI BİLDİRİMİ ---
+      const welcomeMsg = data?.name ? `Hoş geldin, ${data.name}!` : "Giriş başarılı, hoş geldiniz.";
+      addToast(welcomeMsg, "success"); 
+
       navigate("/", { replace: true });
 
-      // 5) Profil rolünü arkaplanda getir (başarısız olsa da sorun yok)
       (async () => {
         try {
-          const prof = await axios.get(`${base}/api/auth/profile`, {
+          await axios.get(`${base}/api/auth/profile`, {
             withCredentials: true,
             headers: { Authorization: `Bearer ${accessToken}` },
           });
-          // eğer Context’te rol tutuyorsan burada güncelle
-          // login({ ...data, role: prof?.data?.role });
-          // admin'se istersen /admin'e yönlendirebilirsin:
-          // if (String(prof?.data?.role).toLowerCase() === "admin") {
-          //   navigate("/admin/products", { replace: true });
-          // }
         } catch (e) {
           if (import.meta.env.DEV) console.warn("Profil alınamadı:", e);
         }
@@ -70,7 +60,8 @@ export default function Login() {
         err?.response?.data?.message ||
         err?.message ||
         "Giriş başarısız. Bilgileri kontrol edin.";
-      alert(msg);
+      
+      addToast(msg, "error"); 
     } finally {
       setLoading(false);
     }

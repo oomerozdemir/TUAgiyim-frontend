@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import RootLayout from "./layout/RootLayout";               // Navbar + GlobalBreadcrumbBar + Outlet
+import RootLayout from "./layout/RootLayout";               
 import { CartProvider } from "./context/CartContext";
+import { ToastProvider } from "./context/ToastContext";
 
 // Public sayfa/bileşenler
 import HeroSection from "./components/heroSection";
@@ -9,7 +10,7 @@ import HomeProducts from "./components/HomeProducts";
 import CategoriesShowcase from "./components/CategoriesShowcase";
 import AboutBlock from "./components/AboutBlock";
 import InfoHighlights from "./components/InfoHighlights";
-import FAQSection from "./components/FAQSection"; // ✅ DÜZELTİLDİ (Eski: ./components/FaqSection)
+import FAQSection from "./components/FAQSection"; 
 import NewsletterCTA from "./components/NewsLetterCta";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
@@ -56,8 +57,8 @@ import "./index.css";
 export default function App() {
   return (
     <AuthProvider>
-      {/* ✅ CartProvider tüm uygulamayı sarmalıyor (ProductDetail & CartPage erişir) */}
       <CartProvider>
+        <ToastProvider>
         <BrowserRouter>
         <CartDrawer />
           <Routes>
@@ -147,16 +148,13 @@ export default function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        </ToastProvider>
       </CartProvider>
     </AuthProvider>
   );
 }
 /* 
 
-
-değişim/iade sistemini kur
-
-iade ve degisim politikasi hakkinda konus
 
 seo çalışması
 

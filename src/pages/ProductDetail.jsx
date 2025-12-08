@@ -7,6 +7,7 @@ import FavoriteButton from "../components/FavoriteButton";
 import CategoryScroller from "../components/CategoryScroller";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useCart } from "../context/CartContext";
+import { useToast } from "../context/ToastContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
@@ -64,6 +65,9 @@ export default function ProductDetail() {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [savingReview, setSavingReview] = useState(false);
+  
+  // Toast State
+  const { addToast } = useToast();
 
   // Hata temizleme
   useEffect(() => {
@@ -179,8 +183,7 @@ export default function ProductDetail() {
     }
 
     if (missing.length > 0) {
-        setShowError(true);
-        setErrorMsg(`Lütfen seçim yapınız: ${missing.join(", ")}`);
+       addToast(`Lütfen seçim yapınız: ${missing.join(", ")}`, "error");
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
     }
@@ -221,6 +224,7 @@ export default function ProductDetail() {
         });
     }
 
+    addToast("Ürün sepete başarıyla eklendi", "success");
     navigate("/sepet");
   };
 
