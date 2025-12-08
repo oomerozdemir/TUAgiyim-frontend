@@ -49,6 +49,7 @@ import CategoryFormPage from "./pages/admin/CategoryFormPage";
 import AllProductsPage from "./pages/AllProductsPage";
 import LastViewedProducts from "./components/LastViewedProducts";
 import AdminMessagesPage from "./pages/admin/AdminMessages";
+import AdminReturnsPage from "./pages/admin/AdminReturnsPage";
 
 import "./index.css";
 
@@ -134,6 +135,8 @@ export default function App() {
                   <Route path="categories/new" element={<CategoryFormPage />} />
                   <Route path="categories/:id" element={<CategoryFormPage />} />
 
+                  <Route path="returns" element={<AdminReturnsPage />} />
+
                   {/* Diğer sekmeler */}
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="users" element={<AdminUsers />} />
@@ -163,7 +166,7 @@ favicon duzenlemesi
 
 urun detay duzenlemesi alt bilgi olarak
 
-ürünlerin etiket fiyatı silik indirimli fiyatı belirgin yapalım ve bunu admın panelinden ayarlayabilelim
+localden siteye ürün bilgisi çekme otomatik nasıl yapolır araştır
 
 
 */

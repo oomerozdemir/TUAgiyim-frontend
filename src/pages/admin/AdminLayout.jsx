@@ -6,6 +6,7 @@ const tabs = [
   { to: "/admin/categories", label: "Kategoriler" },
   { to: "/admin/products", label: "Ürünler" },
   { to: "/admin/orders", label: "Siparişler" },
+  { to: "/admin/returns", label: "İadeler" },
   { to: "/admin/users", label: "Kullanıcılar" },
   { to: "/admin/messages", label: "Mesajlar" },
   { to: "/admin/settings", label: "Ayarlar" },

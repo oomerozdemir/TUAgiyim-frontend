@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useSearchParams, Link } from "react-router-dom"; // Link eklendi
-import { Package, Truck, CheckCircle, AlertCircle, Clock, MapPin, ChevronRight, Box } from "lucide-react"; // İkonlar eklendi
+import { Package, Truck, CheckCircle, AlertCircle, Clock, MapPin, ChevronRight, Box, X, RotateCcw } from "lucide-react"; // İkonlar eklendi
 
 const TabButton = ({ id, active, onClick, children }) => (
   <button
@@ -103,6 +103,13 @@ export default function AccountPage() {
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [addressFormOpen, setAddressFormOpen] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
+
+  // --- İADE MODAL STATE ---
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState(null);
+  const [returnReason, setReturnReason] = useState("");
+  const [returnItemsSelection, setReturnItemsSelection] = useState({}); 
+  const [submittingReturn, setSubmittingReturn] = useState(false);
 
   // Profil bilgisi
   useEffect(() => {
@@ -293,6 +300,56 @@ export default function AccountPage() {
     }
   };
 
+  // İade Modalini Aç
+  const openReturnModal = (order) => {
+    setSelectedOrderForReturn(order);
+    setReturnReason("");
+    setReturnItemsSelection({});
+    setReturnModalOpen(true);
+  };
+
+  // İade Miktarı Değiştirme
+  const handleReturnQtyChange = (orderItemId, val, max) => {
+    const qty = Math.max(0, Math.min(Number(val), max));
+    setReturnItemsSelection(prev => ({
+        ...prev,
+        [orderItemId]: qty
+    }));
+  };
+
+  // İade Gönder
+  const handleSubmitReturn = async (e) => {
+    e.preventDefault();
+    if(submittingReturn) return;
+
+    // Seçili ürünleri formatla
+    const itemsPayload = Object.entries(returnItemsSelection)
+        .filter(([_, qty]) => qty > 0)
+        .map(([orderItemId, quantity]) => ({ orderItemId, quantity }));
+
+    if (itemsPayload.length === 0) {
+        alert("Lütfen iade etmek istediğiniz ürünleri ve adetlerini seçiniz.");
+        return;
+    }
+
+    try {
+        setSubmittingReturn(true);
+        await api.post("/api/returns", {
+            orderId: selectedOrderForReturn.id,
+            items: itemsPayload,
+            reason: returnReason
+        });
+        alert("İade talebiniz başarıyla oluşturuldu.");
+        setReturnModalOpen(false);
+        // İsterseniz siparişleri yeniden çekebilirsiniz ama durum hemen değişmeyebilir
+    } catch (err) {
+        console.error(err);
+        alert(err?.response?.data?.message || "İade talebi oluşturulamadı.");
+    } finally {
+        setSubmittingReturn(false);
+    }
+  };
+
   return (
     <section className="max-w-5xl mx-auto px-6 py-12 bg-cream min-h-screen">
       <h1 className="text-3xl font-serif font-light mb-2 text-black">Hesabım</h1>
@@ -336,6 +393,7 @@ export default function AccountPage() {
             <div className="grid gap-6">
               {orders.map((order) => {
                 const statusUI = getOrderStatusUI(order.status);
+                const canReturn = order.status === "DELIVERED";
                 
                 return (
                   <div key={order.id} className="bg-white border border-beige/40 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -415,6 +473,17 @@ export default function AccountPage() {
                             )}
                         </div>
 
+                        {/* İADE BUTONU */}
+                           {canReturn && (
+                               <button 
+                                   onClick={() => openReturnModal(order)}
+                                   className="mt-4 w-full py-2 flex items-center justify-center gap-2 border border-black/10 rounded-lg hover:bg-black hover:text-white transition-all text-sm font-medium"
+                               >
+                                   <RotateCcw size={16} /> İade Talebi Oluştur
+                               </button>
+                           )}
+                  
+      
                          {/* KARGO TAKİP (YENİ) */}
                             {(order.cargoTrackingNumber || order.cargoCompany) && (
                                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm animate-in fade-in slide-in-from-right-4 duration-500">
@@ -672,6 +741,70 @@ export default function AccountPage() {
           </form>
         </div>
       )}
+
+      {/* --- İADE MODALI --- */}
+      {returnModalOpen && selectedOrderForReturn && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+                <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+                    <h3 className="text-xl font-serif font-bold">İade Talebi Oluştur</h3>
+                    <button onClick={() => setReturnModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full"><X size={24} /></button>
+                </div>
+                
+                <form onSubmit={handleSubmitReturn} className="p-6 space-y-6">
+                    <div className="bg-blue-50 p-4 rounded-lg text-blue-800 text-sm">
+                        <p>İade etmek istediğiniz ürünlerin yanındaki kutucuklara <strong>iade edilecek adedi</strong> giriniz.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                        {selectedOrderForReturn.items.map(item => (
+                            <div key={item.id} className="flex items-center gap-4 border p-3 rounded-lg">
+                                <div className="w-16 h-20 bg-gray-100 rounded flex-shrink-0 overflow-hidden">
+                                    {item.product?.images?.[0]?.url && <img src={item.product.images[0].url} className="w-full h-full object-cover" />}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-bold text-sm">{item.product.name}</p>
+                                    <p className="text-xs text-gray-500">Satın Alınan: {item.quantity} Adet</p>
+                                    <p className="text-xs text-gray-500">{item.sizeLabel} / {item.colorLabel}</p>
+                                </div>
+                                <div className="flex flex-col items-end gap-1">
+                                    <label className="text-[10px] font-bold uppercase text-gray-400">İade Adedi</label>
+                                    <input 
+                                        type="number" 
+                                        min="0" 
+                                        max={item.quantity}
+                                        className="w-16 border rounded p-1 text-center font-bold"
+                                        value={returnItemsSelection[item.id] || 0}
+                                        onChange={(e) => handleReturnQtyChange(item.id, e.target.value, item.quantity)}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold mb-2">İade Nedeni</label>
+                        <textarea 
+                            className="w-full border rounded-lg p-3 text-sm focus:ring-1 focus:ring-black outline-none resize-none"
+                            rows="3"
+                            placeholder="Ürünü neden iade ediyorsunuz? (Beden uymadı, hasarlı, vazgeçtim vb.)"
+                            required
+                            value={returnReason}
+                            onChange={(e) => setReturnReason(e.target.value)}
+                        ></textarea>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                        <button type="button" onClick={() => setReturnModalOpen(false)} className="flex-1 py-3 border rounded-xl font-medium hover:bg-gray-50">Vazgeç</button>
+                        <button type="submit" disabled={submittingReturn} className="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gold transition-colors disabled:opacity-70">
+                            {submittingReturn ? "Gönderiliyor..." : "Talebi Oluştur"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      )}
+      
     </section>
   );
 }
