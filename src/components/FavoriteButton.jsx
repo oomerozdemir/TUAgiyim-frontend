@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../lib/api";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
@@ -10,9 +9,8 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
   const [fav, setFav] = useState(Boolean(initial));
   const [loading, setLoading] = useState(false);
   const [burst, setBurst] = useState(0); 
-  
+
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -51,20 +49,21 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
     const previousState = fav;
     
     setFav(!previousState);
-    if (!previousState) setBurst((prev) => prev + 1);
+    
+    if (!previousState) {
+        setBurst((prev) => prev + 1);
+    }
 
     try {
-     
       const { data } = await api.post(`/api/favorites/${productId}`);
       
       setFav(data.favorited);
       
       if (data.favorited) {
-        addToast("Ürün favorilere eklendi.", "success");
+        addToast("Ürün favorilere eklendi.", "success"); 
       } else {
-        addToast("Ürün favorilerden kaldırıldı.", "info");
+        addToast("Ürün favorilerden kaldırıldı.", "info"); 
       }
-
     } catch (error) {
       setFav(previousState);
       console.error("Favori işlemi başarısız:", error);
@@ -91,7 +90,7 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
       title={fav ? "Favorilerden çıkar" : "Favorilere ekle"}
       aria-label={fav ? "Favorilerden çıkar" : "Favorilere ekle"}
     >
-      {/* Ripple halkası */}
+      {/* Ripple halkası (Efekt) */}
       <AnimatePresence mode="wait">
         {fav && (
           <motion.span
@@ -107,7 +106,7 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
         )}
       </AnimatePresence>
 
-      {/* Konfeti parçacıkları */}
+      {/* Konfeti parçacıkları (Efekt) */}
       <AnimatePresence>
         {fav && (
           <motion.span
@@ -137,7 +136,7 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
         )}
       </AnimatePresence>
 
-      {/* Kalp */}
+      {/* Kalp İkonu */}
       <motion.span
         key={fav ? "on" : "off"}
         initial={{ scale: 0.9, rotate: 0 }}
