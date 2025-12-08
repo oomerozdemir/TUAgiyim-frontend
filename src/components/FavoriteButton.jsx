@@ -10,12 +10,15 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
   const [fav, setFav] = useState(Boolean(initial));
   const [loading, setLoading] = useState(false);
   const [burst, setBurst] = useState(0); 
+  
   const { user } = useAuth();
   const navigate = useNavigate();
   const { addToast } = useToast();
 
   useEffect(() => {
     if (initial !== undefined) return;
+    if (!user) return; 
+
     (async () => {
       try {
         const { data } = await api.get(`/api/favorites/check/${productId}`);
@@ -24,38 +27,46 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
         if (import.meta.env.DEV) console.warn("Fav check failed:", err);
       }
     })();
-  }, [productId, initial]);
+  }, [productId, initial, user]);
 
   useEffect(() => {
     if (initial !== undefined) setFav(Boolean(initial));
   }, [initial]);
 
   const shards = useMemo(() => Array.from({ length: 8 }, (_, i) => i * (360 / 8)), []);
-const toggle = async (e) => { 
+
+  const toggle = async (e) => { 
     e.preventDefault();
     e.stopPropagation();
 
     if (loading) return;
     
-    if (!auth?.user) {
+    if (!user) {
         addToast("Favorilere eklemek için lütfen giriş yapınız.", "error"); 
         return;
     }
 
     setLoading(true);
-    const previousState = liked;
-    setLiked(!previousState);
+    
+    const previousState = fav;
+    
+    setFav(!previousState);
+    if (!previousState) setBurst((prev) => prev + 1);
 
     try {
-      if (previousState) {
-        await api.delete(`/api/favorites/${productId}`);
-        addToast("Ürün favorilerden kaldırıldı.", "info"); 
+     
+      const { data } = await api.post(`/api/favorites/${productId}`);
+      
+      setFav(data.favorited);
+      
+      if (data.favorited) {
+        addToast("Ürün favorilere eklendi.", "success");
       } else {
-        await api.post("/api/favorites", { productId });
-        addToast("Ürün favorilere eklendi.", "success"); 
+        addToast("Ürün favorilerden kaldırıldı.", "info");
       }
+
     } catch (error) {
-      setLiked(previousState);
+      setFav(previousState);
       console.error("Favori işlemi başarısız:", error);
       
       const msg = error.response?.data?.message || "İşlem sırasında bir hata oluştu.";
@@ -72,9 +83,8 @@ const toggle = async (e) => {
       disabled={loading}
       aria-busy={loading}
       className={`relative inline-grid place-items-center w-10 h-10 rounded-full border border-beige/60 
-                  bg-white/90 hover:bg-gold/90 hover:text-black transition 
+                  bg-white/90 hover:bg-gold/90 hover:text-black transition-colors 
                   ${loading ? "opacity-60 cursor-not-allowed" : ""} ${className}`}
-      // küçük bir "tap" hissi
       whileTap={{ scale: 0.92 }}
       animate={{ scale: fav ? 1.06 : 1 }}
       transition={{ type: "spring", stiffness: 500, damping: 18, mass: 0.2 }}
@@ -91,7 +101,7 @@ const toggle = async (e) => {
             animate={{ scale: 1.6, opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.55, ease: "easeOut" }}
-            style={{ border: "2px solid rgba(212,175,55,0.6)" }} // gold tonunda
+            style={{ border: "2px solid rgba(212,175,55,0.6)" }} 
             aria-hidden
           />
         )}
