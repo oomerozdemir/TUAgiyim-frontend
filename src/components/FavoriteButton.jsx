@@ -10,7 +10,12 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
   const [loading, setLoading] = useState(false);
   const [burst, setBurst] = useState(0); 
 
-  const { user } = useAuth();
+  // DÜZELTME BURADA:
+  // Context'ten 'user' değil, 'auth' objesini alıyoruz.
+  const { auth } = useAuth();
+  // Kullanıcı bilgisine auth.user üzerinden erişiyoruz.
+  const user = auth?.user; 
+
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -39,6 +44,7 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
 
     if (loading) return;
     
+    // Kullanıcı kontrolü (auth.user)
     if (!user) {
         addToast("Favorilere eklemek için lütfen giriş yapınız.", "error"); 
         return;
@@ -47,7 +53,6 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
     setLoading(true);
     
     const previousState = fav;
-    
     setFav(!previousState);
     
     if (!previousState) {
@@ -90,7 +95,6 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
       title={fav ? "Favorilerden çıkar" : "Favorilere ekle"}
       aria-label={fav ? "Favorilerden çıkar" : "Favorilere ekle"}
     >
-      {/* Ripple halkası (Efekt) */}
       <AnimatePresence mode="wait">
         {fav && (
           <motion.span
@@ -106,7 +110,6 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
         )}
       </AnimatePresence>
 
-      {/* Konfeti parçacıkları (Efekt) */}
       <AnimatePresence>
         {fav && (
           <motion.span
@@ -136,7 +139,6 @@ export default function FavoriteButton({ productId, initial, className = "" }) {
         )}
       </AnimatePresence>
 
-      {/* Kalp İkonu */}
       <motion.span
         key={fav ? "on" : "off"}
         initial={{ scale: 0.9, rotate: 0 }}
