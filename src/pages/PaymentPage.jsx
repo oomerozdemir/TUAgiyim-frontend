@@ -112,13 +112,10 @@ export default function PaymentPage() {
         shipping,
       };
 
-      // DİKKAT: Burada siparişi tamamlamıyoruz, ödeme oturumu başlatıyoruz.
-      // Backend bu istek üzerine siparişi "AWAITING_PAYMENT" olarak açar ve token döner.
       const { data } = await api.post("/api/payment/start", payload);
       
       if (data.token) {
-        setPaytrToken(data.token); // Token geldi, ekran iframe moduna geçer.
-        // Scroll'u yukarı taşı ki kullanıcı iframe'i görsün
+        setPaytrToken(data.token); 
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         alert("Ödeme servisine bağlanılamadı, lütfen tekrar deneyin.");
@@ -160,33 +157,36 @@ export default function PaymentPage() {
         {paytrToken ? (
            // --- PAYTR IFRAME ALANI ---
            <div className="w-full max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg animate-in fade-in duration-500 border border-beige/40">
-             <div className="flex flex-col items-center justify-center mb-6">
+            
+            {/* Başlık Alanı */}
+            <div className="flex flex-col items-center justify-center mb-6">
                 <Lock className="text-gold mb-2" size={32} />
                 <h2 className="text-center font-bold text-xl text-black">Güvenli Ödeme Ekranı</h2>
-                <p className="text-sm text-gray-500">Ödeme işlemini tamamlamak için lütfen bilgilerinizi giriniz.</p>
-             </div>
-             
-             {/* PayTR Scriptinin Yükleyeceği İframe */}
-             <div className="w-full overflow-hidden min-h-[600px] bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-500">Ödeme işlemini tamamlamak için lütfen kart bilgilerinizi giriniz.</p>
+            </div>
+            
+            {/* PayTR Scriptinin Yükleyeceği İframe */}
+            <div className="w-full overflow-hidden min-h-[600px] bg-gray-50 rounded-lg relative">
                 <iframe
-                    src={`https://www.paytr.com/odeme/guvenli/${paytrToken}`}
+                    src={`https://www.paytr.com/odeme/guvenli/${token}`}
                     id="paytriframe"
                     frameBorder="0"
-                    scrolling="no"
-                    style={{ width: "100%", height: "800px" }} // Yükseklik ayarını ihtiyaca göre artırabilirsiniz
+                    scrolling="yes" 
+                    style={{ width: "100%", height: "800px" }} // Mobilde butonun görünmesi için yükseklik artırıldı
                     allow="payment"
                 ></iframe>
-             </div>
+            </div>
 
-             <div className="text-center mt-6">
+            {/* İptal Butonu */}
+            <div className="text-center mt-6">
                 <button 
-                  onClick={() => window.location.reload()} 
-                  className="text-red-500 text-sm hover:underline font-medium"
+                    onClick={() => navigate("/sepet")} 
+                    className="text-red-500 text-sm hover:underline font-medium transition-colors"
                 >
-                  İşlemi İptal Et ve Geri Dön
+                    İşlemi İptal Et ve Geri Dön
                 </button>
-             </div>
-           </div>
+            </div>
+        </div>
         ) : (
           // --- ADRES VE ÖZET FORMU ---
           <form onSubmit={handleStartPayment} className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">

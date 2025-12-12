@@ -154,9 +154,11 @@ export default function App() {
   );
 }
 /* 
-
-
 seo çalışması
+
+tuvid deki navbarın üstündeki duyuru şeyini yap indirim var şu an
+
+belli bir fiyat üzeri kargo ücretsiz olarak tanımlama nasıl yapılır ona bak
 
 kupon kodu
 
@@ -166,5 +168,20 @@ urun detay duzenlemesi alt bilgi olarak
 
 localden siteye ürün bilgisi çekme otomatik nasıl yapolır araştır
 
+yeni sezon ve kampanyalı ürünler gibi ana kategorilerin altında ayrı bluz pantolon gibi alt kategoriler olsun
+şu anda tek bir yapı var yani her ana kategorinin ayrı ayrı isimlendirmesi mi olmalı bu yapıyı nasıl çözeriz
 
+kategori eklemesi yaparken hata oluyor
+
+her sayfada footer olmalı
+
+blog üret
+
+kayıtlı kullanıcıları görelim
+
+müşteri destek için whatsapp ikonu ekle sözderecedeki gibi olabilir veya tuviddeki gibi ama wp ye yönlendireninden
+
+ıframe de ıptal edildikten sonra sipariş iptali giibi siparişlerimde gözüküyor bunu sadece sipariş verilen ürünleri siparişlerim sayfasında gözükücek şekilde düzeltelim
+
+yandan açılan sepet sidebarında sil butonu yok
 */
