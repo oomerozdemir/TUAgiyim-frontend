@@ -12,7 +12,6 @@ import AboutBlock from "./components/AboutBlock";
 import InfoHighlights from "./components/InfoHighlights";
 import FAQSection from "./components/FAQSection"; 
 import NewsletterCTA from "./components/NewsLetterCta";
-import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 
 import AboutPage from "./pages/AboutPage";
@@ -77,7 +76,6 @@ export default function App() {
                     <InfoHighlights />
                     <FAQSection />
                     <NewsletterCTA />
-                    <Footer />
                   </>
                 }
               />
@@ -156,8 +154,6 @@ export default function App() {
 /* 
 seo çalışması
 
-tuvid deki navbarın üstündeki duyuru şeyini yap indirim var şu an
-
 belli bir fiyat üzeri kargo ücretsiz olarak tanımlama nasıl yapılır ona bak
 
 kupon kodu
@@ -172,8 +168,6 @@ yeni sezon ve kampanyalı ürünler gibi ana kategorilerin altında ayrı bluz p
 şu anda tek bir yapı var yani her ana kategorinin ayrı ayrı isimlendirmesi mi olmalı bu yapıyı nasıl çözeriz
 
 kategori eklemesi yaparken hata oluyor
-
-her sayfada footer olmalı
 
 blog üret
 

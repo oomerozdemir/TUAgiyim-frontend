@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Plus, Minus, MessageCircle, Mail } from "lucide-react";
-import Footer from "../components/Footer";
 
 // --- SSS VERİLERİ ---
 const FAQ_DATA = [
@@ -181,7 +180,6 @@ export default function FaqPage() {
         </div>
 
       </div>
-      <Footer />
     </>
   );
 }

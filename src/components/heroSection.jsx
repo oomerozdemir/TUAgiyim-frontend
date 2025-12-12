@@ -228,9 +228,9 @@ export default function HeroSection() {
                 <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 bg-white/95 backdrop-blur-md px-4 py-3 md:px-6 md:py-4 rounded-xl shadow-lg border border-white/60 transition-all duration-500 group-hover:scale-105">
                   <div className="flex items-center gap-2 text-[#8C7B62] mb-1">
                     <Sparkles className="animate-pulse" size={16} />
-                    <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase">Best Seller</span>
+                    <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase">"Kampanyalı Ürünler"</span>
                   </div>
-                  <p className="text-[#2D2D2D] font-serif text-sm md:text-lg">TUA İmza Serisi</p>
+                  <p className="text-[#2D2D2D] font-serif text-sm md:text-lg"></p>
                   <div className="flex gap-1 mt-2">
                     {[1,2,3,4,5].map(i => (
                       <Star key={i} className="w-3 h-3 fill-[#D6C4A8] stroke-[#D6C4A8]" />

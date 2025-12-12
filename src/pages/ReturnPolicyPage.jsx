@@ -1,6 +1,5 @@
 import { RefreshCw, ShieldCheck, Truck, CreditCard, AlertCircle, HelpCircle, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import Footer from "../components/Footer";
 
 export default function ReturnPolicyPage() {
   return (
@@ -159,7 +158,6 @@ export default function ReturnPolicyPage() {
 
       </div>
     </div>
-    <Footer />
     </>
   );
 }

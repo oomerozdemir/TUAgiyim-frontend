@@ -1,6 +1,5 @@
 import { Lock, Eye, FileText, ShieldCheck, Cookie, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import Footer from "../components/Footer";
 
 export default function PrivacyPage() {
   return (
@@ -137,7 +136,6 @@ export default function PrivacyPage() {
 
       </div>
     </div>
-    <Footer />
   </>
   );
 }

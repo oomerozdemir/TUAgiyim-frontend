@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { BreadcrumbProvider } from "../context/BreadcrumbContext";
 import Navbar from "../components/navbar";
+import Footer from "../components/Footer";
 import GlobalBreadcrumbBar from "../components/GlobalBreadcrumbBar";
 
 export default function RootLayout() {
@@ -24,6 +25,7 @@ export default function RootLayout() {
         <main className="pb-10">
           <Outlet />
         </main>
+        <Footer />
       </div>
     </BreadcrumbProvider>
   );

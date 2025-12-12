@@ -1,6 +1,5 @@
 import { ScrollText, Shield, Users, Lock, Scale } from "lucide-react";
 import { Link } from "react-router-dom";
-import Footer from "../components/Footer";
 
 export default function TermsPage() {
   return (
@@ -123,7 +122,6 @@ export default function TermsPage() {
 
       </div>
     </div>
-    <Footer />
         </>
   );
 }
