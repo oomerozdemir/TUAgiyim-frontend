@@ -167,7 +167,6 @@ localden siteye ürün bilgisi çekme otomatik nasıl yapolır araştır
 yeni sezon ve kampanyalı ürünler gibi ana kategorilerin altında ayrı bluz pantolon gibi alt kategoriler olsun
 şu anda tek bir yapı var yani her ana kategorinin ayrı ayrı isimlendirmesi mi olmalı bu yapıyı nasıl çözeriz
 
-kategori eklemesi yaparken hata oluyor
 
 blog üret
 
