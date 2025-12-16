@@ -180,4 +180,6 @@ müşteri destek için whatsapp ikonu ekle sözderecedeki gibi olabilir veya tuv
 yandan açılan sepet sidebarında sil butonu yok
 
 güvenlik için araştırma yap
+
+mail marketing yapicaz
 */
