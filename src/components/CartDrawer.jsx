@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
-import { X, Trash2, Plus, Minus } from "lucide-react"; 
+import { X, Trash2, Plus, Minus, ShoppingBag } from "lucide-react"; 
 
 const tl = (n) => new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(Number(n||0));
 
@@ -33,15 +33,13 @@ export default function CartDrawer() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex justify-end isolate">
-      {/* --- ARKA PLAN KARARTMA ---
-      */}
+      {/* --- ARKA PLAN KARARTMA --- */}
       <div 
         className="absolute inset-0 bg-black/40 backdrop-blur-[3px] animate-in fade-in duration-500 ease-out"
         onClick={closeCart}
       />
 
-      {/* --- SIDEBAR PANEL --- 
-      */}
+      {/* --- SIDEBAR PANEL --- */}
       <aside className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-700 ease-[cubic-bezier(0.19,1,0.22,1)]">
         
         {/* Başlık Alanı */}
@@ -56,11 +54,11 @@ export default function CartDrawer() {
         </div>
 
         {/* Ürün Listesi */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-white">
+        <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-white custom-scrollbar">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-black/50 space-y-4 animate-in fade-in zoom-in-95 duration-500">
-              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-2">
-                <ShoppingBagIcon />
+              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-2 text-gray-300">
+                <ShoppingBag size={40} strokeWidth={1.5} />
               </div>
               <p className="text-lg font-medium">Sepetiniz boş</p>
               <p className="text-sm max-w-[200px] text-center leading-relaxed">Beğendiğiniz ürünleri ekleyerek alışverişe başlayabilirsiniz.</p>
@@ -70,7 +68,7 @@ export default function CartDrawer() {
             </div>
           ) : (
             items.map((it) => (
-              <div key={it.key} className="flex gap-4 py-2 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards">
+              <div key={it.key} className="flex gap-4 py-2 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards border-b border-gray-50 pb-4 last:border-0">
                 {/* Görsel */}
                 <div className="w-24 h-32 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 relative group">
                    {it.image ? (
@@ -78,13 +76,14 @@ export default function CartDrawer() {
                    ) : (
                      <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Görsel Yok</div>
                    )}
-                   {/* Hızlı Sil Butonu */}
+                   
+                   {/* SİLME BUTONU (GÜNCELLENDİ: Her zaman görünür yapıldı) */}
                    <button 
                       onClick={(e) => { e.stopPropagation(); removeItem(it.key); }}
-                      className="absolute top-1 right-1 bg-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-sm hover:text-red-600 hover:scale-110"
-                      title="Kaldır"
+                      className="absolute top-1 right-1 bg-white/90 p-1.5 rounded-full shadow-sm text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 z-10"
+                      title="Sepetten Kaldır"
                    >
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
                    </button>
                 </div>
 
@@ -92,7 +91,9 @@ export default function CartDrawer() {
                 <div className="flex-1 min-w-0 flex flex-col justify-between h-32 py-1">
                   <div className="space-y-1">
                     <div className="flex justify-between items-start gap-2">
-                        <h3 className="text-sm font-bold text-black leading-tight line-clamp-2 hover:text-gold transition-colors cursor-pointer" onClick={handleGoToCart}>{it.name}</h3>
+                        <h3 className="text-sm font-bold text-black leading-tight line-clamp-2 hover:text-gold transition-colors cursor-pointer" onClick={handleGoToCart}>
+                          {it.name}
+                        </h3>
                         <span className="font-bold text-sm whitespace-nowrap">{tl(it.price * it.quantity)}</span>
                     </div>
                     
@@ -121,14 +122,14 @@ export default function CartDrawer() {
                             className="w-8 h-full flex items-center justify-center hover:bg-gray-50 text-black/60 hover:text-black transition disabled:opacity-30"
                             disabled={it.quantity <= 1}
                         >
-                            <Minus size={12} />
+                            <Minus size={14} />
                         </button>
-                        <span className="w-6 text-center text-xs font-bold">{it.quantity}</span>
+                        <span className="w-8 text-center text-xs font-bold">{it.quantity}</span>
                         <button 
                             onClick={() => increment(it.key)}
                             className="w-8 h-full flex items-center justify-center hover:bg-gray-50 text-black/60 hover:text-black transition"
                         >
-                            <Plus size={12} />
+                            <Plus size={14} />
                         </button>
                      </div>
                      
@@ -177,13 +178,4 @@ export default function CartDrawer() {
       </aside>
     </div>
   );
-}
-
-// Basit SVG ikon bileşeni
-function ShoppingBagIcon() {
-  return (
-    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-    </svg>
-  )
 }

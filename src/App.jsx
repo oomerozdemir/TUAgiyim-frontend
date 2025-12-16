@@ -170,11 +170,9 @@ yeni sezon ve kampanyalı ürünler gibi ana kategorilerin altında ayrı bluz p
 
 blog üret
 
-kayıtlı kullanıcıları görelim
 
 müşteri destek için whatsapp ikonu ekle sözderecedeki gibi olabilir veya tuviddeki gibi ama wp ye yönlendireninden
 
-ıframe de ıptal edildikten sonra sipariş iptali giibi siparişlerimde gözüküyor bunu sadece sipariş verilen ürünleri siparişlerim sayfasında gözükücek şekilde düzeltelim
 
 yandan açılan sepet sidebarında sil butonu yok
 
