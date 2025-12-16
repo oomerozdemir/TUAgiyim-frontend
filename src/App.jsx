@@ -178,4 +178,6 @@ müşteri destek için whatsapp ikonu ekle sözderecedeki gibi olabilir veya tuv
 ıframe de ıptal edildikten sonra sipariş iptali giibi siparişlerimde gözüküyor bunu sadece sipariş verilen ürünleri siparişlerim sayfasında gözükücek şekilde düzeltelim
 
 yandan açılan sepet sidebarında sil butonu yok
+
+güvenlik için araştırma yap
 */

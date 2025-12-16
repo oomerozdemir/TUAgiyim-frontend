@@ -168,7 +168,7 @@ export default function PaymentPage() {
             {/* PayTR Scriptinin Yükleyeceği İframe */}
             <div className="w-full overflow-hidden min-h-[600px] bg-gray-50 rounded-lg relative">
                 <iframe
-                    src={`https://www.paytr.com/odeme/guvenli/${token}`}
+                    src={`https://www.paytr.com/odeme/guvenli/${paytrToken}`}
                     id="paytriframe"
                     frameBorder="0"
                     scrolling="yes" 
